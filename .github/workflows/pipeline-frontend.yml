@@ -46,6 +46,9 @@ jobs:
     
     - name: Retrieve Repository
       run: |
+        chmod 600 ~/.ssh/id_rsa
+        ls -l /home/runner/.ssh
+        cat /home/runner/.ssh/id_rsa
         git clone git@bitbucket.org:thinkrfsoftware/s1000_frontend.git
         cd s1000_frontend
         git checkout ${{ github.event.inputs.releaseTag }}
