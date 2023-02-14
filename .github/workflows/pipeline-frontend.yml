@@ -23,15 +23,18 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
 
+    - name: Setup Auth With Bitbucket
+      uses: webfactory/ssh-agent@v0.7.0
+      with:
+          ssh-private-key: ${{ secrets.BITBUCKET_SSH_PRIVATE_KEY }}
+    
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-    - name: retrieve-repository
+    - name: Retrieve Repository
       run: |
         git clone git@bitbucket.org:thinkrfsoftware/s1000_frontend.git
         cd s1000_frontend
         git checkout ${{ github.event.inputs.releaseTag }}
         ls -l
-      with:
-        ssh-private-key: ${{ secrets.BITBUCKET_SSH_PRIVATE_KEY }}
         
       # ref: ${{ github.event.inputs.caReleaseTag }}
 
