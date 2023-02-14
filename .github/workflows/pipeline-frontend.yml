@@ -33,9 +33,12 @@ jobs:
       uses: shimataro/ssh-key-action@v2
       with:
         key: ${{ secrets.BITBUCKET_SSH_PRIVATE_KEY }}
-        # name: id_rsa # optional
+        name: id_rsa_bit # optional
         known_hosts: "bitbucket.org"
-        # config: ${{ secrets.CONFIG }} # ssh_config; optional
+        config: |
+          Host bitbucket-git
+            HostName bitbucket.org
+            IdentityFile ~/.ssh/id_rsa_bit
         if_key_exists: replace # replace / ignore / fail; optional (defaults to fail)
 
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -49,7 +52,7 @@ jobs:
         chmod 600 ~/.ssh/id_rsa
         ls -l /home/runner/.ssh
         cat /home/runner/.ssh/id_rsa
-        git clone git@bitbucket.org:thinkrfsoftware/s1000_frontend.git
+        git clone git@bitbucket-git:thinkrfsoftware/s1000_frontend.git
         cd s1000_frontend
         git checkout ${{ github.event.inputs.releaseTag }}
         ls -l
