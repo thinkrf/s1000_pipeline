@@ -42,7 +42,7 @@ jobs:
     - name: Generate deployment package
       run: |
         cd s1000_frontend
-        zip -r deploy.zip . -x '*.git*'
+        zip -r deploy.zip . -x '*.git*' -x 'node_modules/*'
 
     - name: Deploy to AWS Elastic Beanstalk
       uses: einaregilsson/beanstalk-deploy@v21
@@ -50,7 +50,7 @@ jobs:
         aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         application_name: s1000-${{ github.event.inputs.appEnv }}
-        environment_name: s1000-${{ github.event.inputs.appEnv }}
+        environment_name: S1000${{ github.event.inputs.appEnv }}
         version_label: ${{ github.event.inputs.releaseTag }}
         region: us-east-2
         deployment_package: s1000_frontend/deploy.zip    
