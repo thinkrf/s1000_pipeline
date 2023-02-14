@@ -18,7 +18,7 @@ This repoistory is the CI/CD tool working as pipeline to build and release S1000
 - In the left menu, click in **S1000 Frontend Pipeline**
 - Click in **Run workflow** button
 - Fill the fields:
---- Release Tag: The s1000 frontend tag that you would like to create a release. Ex: 1.3.0
---- App Environment: options (dev, test, prod)
+    - Release Tag: The s1000 frontend tag that you would like to create a release. Ex: 1.3.0
+    - App Environment: options (dev, test, prod)
 - Click in **Run workflow**
 
