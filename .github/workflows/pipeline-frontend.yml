@@ -23,51 +23,39 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
 
-    # - uses: actions/checkout@v3
-    # - name: Setup Auth With Bitbucket
-    #   uses: webfactory/ssh-agent@v0.7.0
-    #   with:
-    #       ssh-private-key: ${{ secrets.BITBUCKET_SSH_PRIVATE_KEY }}
-    
     - name: Install SSH key
       uses: shimataro/ssh-key-action@v2
       with:
         key: ${{ secrets.BITBUCKET_SSH_PRIVATE_KEY }}
-        name: id_rsa_bit # optional
+        name: id_rsa_bit
         known_hosts: ${{ secrets.KNOWN_HOSTS }}
         config: |
           Host bitbucket-git
             HostName bitbucket.org
             IdentityFile ~/.ssh/id_rsa_bit
-        if_key_exists: replace # replace / ignore / fail; optional (defaults to fail)
+        if_key_exists: replace
 
-    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-    # - name: SSH Key
-    #   run: |
-    #     echo -en "${{ secrets.BITBUCKET_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-    #     chmod 600 ~/.ssh/id_rsa
-    
     - name: Retrieve Repository
       run: |
         git clone git@bitbucket-git:thinkrfsoftware/s1000_frontend.git
         cd s1000_frontend
         git checkout ${{ github.event.inputs.releaseTag }}
-        ls -l
-        
-      # ref: ${{ github.event.inputs.caReleaseTag }}
-
-    # # Get commit Id
-    # - name: Package Version
-    #   run: echo "BUILD_ID=${{ github.event.inputs.caReleaseTag }}" >> $GITHUB_ENV
-
-    # # Get Signal Application Id by the branch name
-    # # Signal App Id for (Test) Control_Agent = 63627c9bc3b82220c7ac9973
-    # # Signal App Id for (Production) Control_Agent = 636277faadd6b319daf8908e    
-    # - name: Signal App Id Selection
-    #   run: |
-    #     echo "SIGNAL_APP_ID=63627c9bc3b82220c7ac9973" >> $GITHUB_ENV
-    #     if [ ${{ github.event.inputs.signalAppEnv }} == "prod" ]; then echo "SIGNAL_APP_ID=636277faadd6b319daf8908e" >> $GITHUB_ENV; fi   
     
+    - name: Generate deployment package
+      run: |
+        ls -l
+    #     zip -r deploy.zip . -x '*.git*'
+
+    # - name: Deploy to AWS Elastic Beanstalk
+    #   uses: einaregilsson/beanstalk-deploy@v21
+    #   with:
+    #     aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+    #     aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    #     application_name: s1000-${{ github.event.inputs.appEnv }}
+    #     environment_name: s1000-${{ github.event.inputs.appEnv }}
+    #     version_label: ${{ github.event.inputs.releaseTag }}
+    #     region: us-east-2
+    #     deployment_package: deploy.zip    
     # # Runs commands using the runners shell
     # - name: Run the build script
     #   run: |
