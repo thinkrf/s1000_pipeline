@@ -25,8 +25,8 @@ jobs:
 
     - name: Setup Auth With Bitbucket
       uses: webfactory/ssh-agent@v0.7.0
-      with:
-          ssh-private-key: ${{ secrets.BITBUCKET_SSH_PRIVATE_KEY }}
+      # with:
+      #     ssh-private-key: ${{ secrets.BITBUCKET_SSH_PRIVATE_KEY }}
     
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - name: Retrieve Repository
