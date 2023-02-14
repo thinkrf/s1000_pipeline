@@ -36,7 +36,7 @@ jobs:
         # name: id_rsa # optional
         known_hosts: "bitbucket.org"
         # config: ${{ secrets.CONFIG }} # ssh_config; optional
-        # if_key_exists: fail # replace / ignore / fail; optional (defaults to fail)
+        if_key_exists: replace # replace / ignore / fail; optional (defaults to fail)
 
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     # - name: SSH Key
