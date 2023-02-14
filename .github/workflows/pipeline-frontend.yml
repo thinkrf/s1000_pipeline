@@ -34,7 +34,7 @@ jobs:
       with:
         key: ${{ secrets.BITBUCKET_SSH_PRIVATE_KEY }}
         name: id_rsa_bit # optional
-        known_hosts: "bitbucket.org"
+        known_hosts: ${{ secrets.KNOWN_HOSTS }}
         config: |
           Host bitbucket-git
             HostName bitbucket.org
