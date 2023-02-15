@@ -21,6 +21,12 @@ jobs:
 
     steps:
 
+    - name: Parse App Name
+      run: |  
+        if [ ${{ github.event.inputs.appEnv }} == "dev" ]; then echo "APP_NAME=DevS1000" >> $GITHUB_ENV; fi 
+        if [ ${{ github.event.inputs.appEnv }} == "test" ]; then echo "APP_NAME=TestS1000" >> $GITHUB_ENV; fi
+        if [ ${{ github.event.inputs.appEnv }} == "prod" ]; then echo "APP_NAME=ProdS1000" >> $GITHUB_ENV; fi
+
     - name: Install SSH key
       uses: shimataro/ssh-key-action@v2
       with:
@@ -42,15 +48,15 @@ jobs:
     - name: Generate deployment package
       run: |
         cd s1000_frontend
-        zip -r deploy.zip . -x '*.git*' -x 'node_modules/*'
+        zip -r s1000-${{ github.event.inputs.appEnv }}.zip . -x '*.git*' -x 'node_modules/*'
 
     - name: Deploy to AWS Elastic Beanstalk
       uses: einaregilsson/beanstalk-deploy@v21
       with:
         aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        application_name: s1000-${{ github.event.inputs.appEnv }}
-        environment_name: S1000${{ github.event.inputs.appEnv }}-env
+        application_name: ${{ env.APP_NAME }}
+        environment_name: ${{ env.APP_NAME }}-env
         version_label: ${{ github.event.inputs.releaseTag }}
         region: us-east-2
-        deployment_package: s1000_frontend/deploy.zip    
+        deployment_package: s1000_frontend/s1000-${{ github.event.inputs.appEnv }}.zip    
