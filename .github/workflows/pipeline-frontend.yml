@@ -24,7 +24,7 @@ jobs:
     - name: Parse App Name
       run: |  
         if [ ${{ github.event.inputs.appEnv }} == "dev" ]; then echo "APP_PORT=3000" >> $GITHUB_ENV; fi 
-        if [ ${{ github.event.inputs.appEnv }} == "test" ]; then echo "APP_PORT=3001" >> $GITHUB_ENV; fi         
+        if [ ${{ github.event.inputs.appEnv }} == "test" ]; then echo "APP_PORT=3000" >> $GITHUB_ENV; fi         
 
     - name: Install Bitbuket SSH key
       uses: shimataro/ssh-key-action@v2
@@ -46,7 +46,7 @@ jobs:
         known_hosts: ${{ secrets.KNOWN_HOSTS_AWS_EC2 }}
         config: |
           Host aws-ec2
-            HostName ec2-3-143-123-50.us-east-2.compute.amazonaws.com
+            HostName ${{ vars.AWS_EC2_HOST }}
             IdentityFile ~/.ssh/id_rsa_aws_ec2
         if_key_exists: replace
 
