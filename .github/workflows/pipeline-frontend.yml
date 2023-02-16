@@ -50,7 +50,12 @@ jobs:
             IdentityFile ~/.ssh/id_rsa_aws_ec2
         if_key_exists: replace
 
-    
+    - name: Retrieve Repository
+      run: |
+        git clone git@bitbucket-git:thinkrfsoftware/s1000_frontend.git
+        cd s1000_frontend
+        git checkout ${{ github.event.inputs.releaseTag }}
+            
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v1
 
