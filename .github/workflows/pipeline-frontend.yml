@@ -60,8 +60,7 @@ jobs:
     - name: Deploy
       run: |
         ssh ubuntu@aws-ec2
-        ls -l
-
+        echo "ls -l" | ssh ubuntu@aws-ec2 /bin/bash
     # - name: Deploy to AWS Elastic Beanstalk
     #   uses: einaregilsson/beanstalk-deploy@v21
     #   with:
