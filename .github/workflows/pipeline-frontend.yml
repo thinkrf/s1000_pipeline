@@ -55,7 +55,7 @@ jobs:
         git clone git@bitbucket-git:thinkrfsoftware/s1000_frontend.git
         cd s1000_frontend
         git checkout ${{ github.event.inputs.releaseTag }}
-            
+
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v1
 
@@ -79,7 +79,6 @@ jobs:
 
     - name: Deploy
       run: |
-        ${{ env.APP_PORT }}
         echo "docker pull thinkrf/s1000_frontend:${{ github.event.inputs.releaseTag }}; CURRENT_IMAGE=$(docker ps | grep s1000_test | awk '{print $1}'); if [ CURRENT_IMAGE ]; then docker stop $CURRENT_IMAGE; docker rm $CURRENT_IMAGE; fi; docker run --name s1000_${{ github.event.inputs.appEnv }}-${{ github.event.inputs.releaseTag }} -d -p ${{ env.APP_PORT }}:3000 thinkrf/s1000_frontend:${{ github.event.inputs.releaseTag }}" | ssh ubuntu@aws-ec2 /bin/bash
 
     # - name: Deploy to AWS Elastic Beanstalk
