@@ -72,7 +72,6 @@ jobs:
       id: docker_build
       uses: docker/build-push-action@v2
       with:
-        arch: aarch64
         context: s1000_frontend/
         push: true
         tags: thinkrf/s1000_frontend:${{ github.event.inputs.releaseTag }}
