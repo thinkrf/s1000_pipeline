@@ -46,7 +46,7 @@ jobs:
         known_hosts: ${{ secrets.KNOWN_HOSTS_AWS_EC2 }}
         config: |
           Host aws-ec2
-            HostName ${{}}
+            HostName ${{ vars.AWS_EC2_HOST }}
             IdentityFile ~/.ssh/id_rsa_aws_ec2
         if_key_exists: replace
 
