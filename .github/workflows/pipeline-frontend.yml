@@ -24,7 +24,7 @@ jobs:
     - name: Parse App Name
       run: |  
         if [ ${{ github.event.inputs.appEnv }} == "dev" ]; then echo "APP_PORT=3000" >> $GITHUB_ENV; fi 
-        if [ ${{ github.event.inputs.appEnv }} == "test" ]; then echo "APP_PORT=3000" >> $GITHUB_ENV; fi         
+        if [ ${{ github.event.inputs.appEnv }} == "test" ]; then echo "APP_PORT=3001" >> $GITHUB_ENV; fi         
 
     - name: Install Bitbuket SSH key
       uses: shimataro/ssh-key-action@v2
@@ -46,7 +46,7 @@ jobs:
         known_hosts: ${{ secrets.KNOWN_HOSTS_AWS_EC2 }}
         config: |
           Host aws-ec2
-            HostName ${{ vars.AWS_EC2_HOST }}
+            HostName ${{}}
             IdentityFile ~/.ssh/id_rsa_aws_ec2
         if_key_exists: replace
 
@@ -78,7 +78,7 @@ jobs:
 
     - name: Deploy
       run: |
-        echo "docker pull thinkrf/s1000_frontend:${{ github.event.inputs.releaseTag }}; CURRENT_IMAGE=$(docker ps | grep s1000_test | awk '{print $1}'); if [ $CURRENT_IMAGE ]; then docker stop $CURRENT_IMAGE; docker rm $CURRENT_IMAGE; fi; docker run --name s1000_${{ github.event.inputs.appEnv }}-${{ github.event.inputs.releaseTag }} -d -p ${{ env.APP_PORT }}:3000 thinkrf/s1000_frontend:${{ github.event.inputs.releaseTag }}" | ssh ubuntu@aws-ec2 /bin/bash
+        echo "echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} > ~/docker_token.txt; cat ~/docker_token.txt | docker login --username ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin; rm -f ~/docker_token.txt; docker pull thinkrf/s1000_frontend:${{ github.event.inputs.releaseTag }}; CURRENT_IMAGE=$(docker ps | grep s1000_test | awk '{print $1}'); if [ $CURRENT_IMAGE ]; then docker stop $CURRENT_IMAGE; docker rm $CURRENT_IMAGE; fi; docker run --name s1000_${{ github.event.inputs.appEnv }}-${{ github.event.inputs.releaseTag }} -d -p ${{ env.APP_PORT }}:3000 thinkrf/s1000_frontend:${{ github.event.inputs.releaseTag }}" | ssh ubuntu@aws-ec2 /bin/bash
 
     # - name: Deploy to AWS Elastic Beanstalk
     #   uses: einaregilsson/beanstalk-deploy@v21
