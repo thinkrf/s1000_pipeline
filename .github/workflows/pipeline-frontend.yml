@@ -23,9 +23,8 @@ jobs:
 
     - name: Parse App Name
       run: |  
-        if [ ${{ github.event.inputs.appEnv }} == "dev" ]; then echo "APP_NAME=DevS1000" >> $GITHUB_ENV; fi 
-        if [ ${{ github.event.inputs.appEnv }} == "test" ]; then echo "APP_NAME=TestS1000" >> $GITHUB_ENV; fi
-        if [ ${{ github.event.inputs.appEnv }} == "prod" ]; then echo "APP_NAME=ProdS1000" >> $GITHUB_ENV; fi
+        if [ ${{ github.event.inputs.appEnv }} == "dev" ]; then echo "APP_PORT=3000" >> $GITHUB_ENV; fi 
+        if [ ${{ github.event.inputs.appEnv }} == "test" ]; then echo "APP_PORT=3001" >> $GITHUB_ENV; fi         
 
     - name: Install Bitbuket SSH key
       uses: shimataro/ssh-key-action@v2
@@ -51,16 +50,33 @@ jobs:
             IdentityFile ~/.ssh/id_rsa_aws_ec2
         if_key_exists: replace
 
-    # - name: Retrieve Repository
-    #   run: |
-    #     git clone git@bitbucket-git:thinkrfsoftware/s1000_frontend.git
-    #     cd s1000_frontend
-    #     git checkout ${{ github.event.inputs.releaseTag }}
+    
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v1
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+
+    - name: Log in to the Container registry
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+    
+    - name: Build and push Docker image
+      id: docker_build
+      uses: docker/build-push-action@v2
+      with:
+        arch: aarch64
+        context: s1000_frontend/
+        push: true
+        tags: thinkrf/s1000_frontend:${{ github.event.inputs.releaseTag }}
 
     - name: Deploy
       run: |
-        ssh ubuntu@aws-ec2
-        echo "ls -l" | ssh ubuntu@aws-ec2 /bin/bash
+        ${{ env.APP_PORT }}
+        echo "docker pull thinkrf/s1000_frontend:${{ github.event.inputs.releaseTag }}; CURRENT_IMAGE=$(docker ps | grep s1000_test | awk '{print $1}'); if [ CURRENT_IMAGE ]; then docker stop $CURRENT_IMAGE; docker rm $CURRENT_IMAGE; fi; docker run --name s1000_${{ github.event.inputs.appEnv }}-${{ github.event.inputs.releaseTag }} -d -p ${{ env.APP_PORT }}:3000 thinkrf/s1000_frontend:${{ github.event.inputs.releaseTag }}" | ssh ubuntu@aws-ec2 /bin/bash
+
     # - name: Deploy to AWS Elastic Beanstalk
     #   uses: einaregilsson/beanstalk-deploy@v21
     #   with:
