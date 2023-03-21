@@ -45,22 +45,29 @@ jobs:
             IdentityFile ~/.ssh/id_rsa_bit
         if_key_exists: replace
 
-    - name: Retrieve Repository
-      run: |
-        git clone git@bitbucket-git:thinkrfsoftware/s1000_backend.git
-        cd s1000_backend
-        git checkout ${{ github.event.inputs.releaseTag }}
+    # - name: Retrieve Repository
+    #   run: |
+    #     git clone git@bitbucket-git:thinkrfsoftware/s1000_backend.git
+    #     cd s1000_backend
+    #     git checkout ${{ github.event.inputs.releaseTag }}
 
-    - name: Inno-setup
+    # - name: Inno-setup
+    #   shell: pwsh
+    #   run: |
+    #     Invoke-WebRequest -OutFile inno.exe -Uri https://jrsoftware.org/download.php/is.exe
+    #     Start-Process -Wait -FilePath $PWD\inno.exe -Argument "/silent" -PassThru
+
+    - name: Boost Library
       shell: pwsh
       run: |
-        Invoke-WebRequest -OutFile inno.exe -Uri https://jrsoftware.org/download.php/is.exe
-        Start-Process -Wait -FilePath $PWD\inno.exe -Argument "/silent" -PassThru
+        Invoke-WebRequest -OutFile boost.zip -Uri https://boostorg.jfrog.io/artifactory/main/release/1.80.0/source/boost_1_80_0.zip
+        7z x boost.zip -oboost
+        dir boost/
 
-    - name: Build Web-Socket Server
-      shell: pwsh
-      run: |
-        cd s1000_backend
-        cmake .
-        CMAKE --build .
-        dir bin/     
+    # - name: Build Client
+    #   shell: pwsh
+    #   run: |
+    #     cd s1000_backend
+    #     cmake .
+    #     CMAKE --build .
+    #     dir bin/     
