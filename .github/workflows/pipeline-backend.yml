@@ -70,25 +70,25 @@ jobs:
     #     Invoke-WebRequest -OutFile inno.exe -Uri https://jrsoftware.org/download.php/is.exe
     #     Start-Process -Wait -FilePath $PWD\inno.exe -Argument "/silent" -PassThru
 
-    - name: Install boost
-      run: |
-        Invoke-WebRequest -OutFile boost.exe -Uri https://sourceforge.net/projects/boost/files/boost-binaries/1.80.0/boost_1_80_0-msvc-14.1-32.exe/download
-        Start-Process -Wait -FilePath $PWD\boost.exe -Argument "/silent" -PassThru
-
     # - name: Install boost
-    #   uses: MarkusJx/install-boost@v2.4.1
-    #   id: install-boost
-    #   with:
-    #       # REQUIRED: Specify the required boost version
-    #       # A list of supported versions can be found here:
-    #       # https://github.com/MarkusJx/prebuilt-boost/blob/main/versions-manifest.json
-    #       boost_version: 1.80.0
-    #       # OPTIONAL: Specify a custon install location
-    #       boost_install_dir: C:\boost
-    #       # OPTIONAL: Specify a platform version
-    #       # platform_version: 2019
-    #       # OPTIONAL: Specify a toolset
-    #       toolset: msvc
+    #   run: |
+    #     Invoke-WebRequest -OutFile boost.exe -Uri https://sourceforge.net/projects/boost/files/boost-binaries/1.80.0/boost_1_80_0-msvc-14.1-32.exe/download
+    #     Start-Process -Wait -FilePath $PWD\boost.exe -Argument "/silent" -PassThru
+
+    - name: Install boost
+      uses: MarkusJx/install-boost@v2.4.1
+      id: install-boost
+      with:
+          # REQUIRED: Specify the required boost version
+          # A list of supported versions can be found here:
+          # https://github.com/MarkusJx/prebuilt-boost/blob/main/versions-manifest.json
+          boost_version: 1.80.0
+          # OPTIONAL: Specify a custon install location
+          # boost_install_dir: C:\boost
+          # OPTIONAL: Specify a platform version
+          # platform_version: 2019
+          # OPTIONAL: Specify a toolset
+          toolset: msvc
 
     - name: Install Node.js and NPM
       uses: actions/setup-node@v1
@@ -105,8 +105,8 @@ jobs:
       shell: pwsh
       run: |
         cd s1000_backend
-        cmake .
-        CMAKE --build .
+        cmake . -G "Visual Studio 16 2019" -B build -DSTATIC=true -DDO_TESTS=OFF -DCMAKE_C_FLAGS="-fassociative-math" -DCMAKE_CXX_FLAGS="-fassociative-math" -DCMAKE_BUILD_TYPE=Release -DBOOST_ROOT=${{ steps.install-boost.outputs.BOOST_ROOT }}
+        cmake --build ./build --config Release
         dir bin/     
       # env:
       #     BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT }}        
