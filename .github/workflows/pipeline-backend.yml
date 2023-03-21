@@ -45,18 +45,6 @@ jobs:
             IdentityFile ~/.ssh/id_rsa_bit
         if_key_exists: replace
 
-    - name: Install AWS EC2 SSH key
-      uses: shimataro/ssh-key-action@v2
-      with:
-        key: ${{ secrets.AWS_EC2_SSH_PRIVATE_KEY }}
-        name: id_rsa_aws_ec2
-        known_hosts: ${{ secrets.KNOWN_HOSTS_AWS_EC2 }}
-        config: |
-          Host aws-ec2
-            HostName ${{ vars.AWS_EC2_HOST }}
-            IdentityFile ~/.ssh/id_rsa_aws_ec2
-        if_key_exists: replace
-
     # - name: Retrieve Repository
     #   run: |
     #     git clone git@bitbucket-git:thinkrfsoftware/s1000_backend.git
@@ -69,8 +57,10 @@ jobs:
         Invoke-WebRequest -OutFile inno.exe -Uri https://jrsoftware.org/download.php/is.exe
         Start-Process -Wait -FilePath $PWD\inno.exe -Argument "/silent" -PassThru
 
-    # - name: Install Inno-setup
-    #   shell: pwsh
-    #   run: |
-        
-    #     inno.exe /VERYSILENT /NORESTART /ALLUSERS
+    - name: Build Web-Socket Server
+      shell: pwsh
+      run: |
+        cd s1000_backend
+        cmake .
+        CMAKE --build .
+        dir bin/     
