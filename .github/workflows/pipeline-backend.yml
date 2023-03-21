@@ -105,7 +105,7 @@ jobs:
       shell: pwsh
       run: |
         cd s1000_backend
-        cmake . -B build -DSTATIC=true -DCMAKE_BUILD_TYPE=Release -DBOOST_ROOT=${{ steps.install-boost.outputs.BOOST_ROOT }}
+        cmake . -DBOOST_ROOT=${{ steps.install-boost.outputs.BOOST_ROOT }}
         CMAKE --build .
         dir bin/     
       # env:
