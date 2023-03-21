@@ -45,12 +45,6 @@ jobs:
             IdentityFile ~/.ssh/id_rsa_bit
         if_key_exists: replace
 
-    # - name: Retrieve Repository
-    #   run: |
-    #     git clone git@bitbucket-git:thinkrfsoftware/s1000_backend.git
-    #     cd s1000_backend
-    #     git checkout ${{ github.event.inputs.releaseTag }}
-
     # - name: Inno-setup
     #   shell: pwsh
     #   run: |
@@ -72,26 +66,48 @@ jobs:
           # OPTIONAL: Specify a toolset
           toolset: msvc
 
-          # NOTE: If a boost version matching all requirements cannot be found,
-          # this build step will fail
+    - name: Install Node.js and NPM
+      uses: actions/setup-node@v1
+      with:
+        node-version: 14
+
+    - name: Retrieve Repository
+      run: |
+        git clone git@bitbucket-git:thinkrfsoftware/s1000_backend.git
+        cd s1000_backend
+        git checkout ${{ github.event.inputs.releaseTag }}
+
+    - name: Build Client
+      shell: pwsh
+      run: |
+        cd s1000_backend
+        cmake .
+        CMAKE --build .
+        dir bin/     
+      env:
+          BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT }}        
+
+    - name: Build Socket Server
+      shell: pwsh
+      run: |
+        cd s1000_backend/server
+        npm install
+        npx electron-packager . --overwrite --arch x64 --platform win32
+      env:
+          BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT }}     
+
+
+
     # - name: Configure CMake
     #   run: cmake . -DCMAKE_BUILD_TYPE=$BUILD_TYPE -B build
     #   env:
     #       BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT }}
 
-    - name: Boost Library
-      shell: pwsh
-      run: |
-        Invoke-WebRequest -OutFile boost.zip -Uri https://boostorg.jfrog.io/artifactory/main/release/1.80.0/source/boost_1_80_0.zip
-        7z x boost.zip -oboost
-        cd boost/boost_1_80_0
-        .\bootstrap.bat
-        .\b2
-
-    # - name: Build Client
+    # - name: Boost Library
     #   shell: pwsh
     #   run: |
-    #     cd s1000_backend
-    #     cmake .
-    #     CMAKE --build .
-    #     dir bin/     
+    #     Invoke-WebRequest -OutFile boost.zip -Uri https://boostorg.jfrog.io/artifactory/main/release/1.80.0/source/boost_1_80_0.zip
+    #     7z x boost.zip -oboost
+    #     cd boost/boost_1_80_0
+    #     .\bootstrap.bat
+    #     .\b2         
