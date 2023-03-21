@@ -30,8 +30,27 @@ jobs:
             archiver: "7z a",
             generators: "Visual Studio 16 2019"
           }
+        # - {
+        #     name: "Ubuntu_Latest_GCC",
+        #     os: ubuntu-latest,
+        #     artifact: "ubuntu_gcc.7z",
+        #     build_type: "Release",
+        #     cc: "gcc",
+        #     cxx: "g++",
+        #     archiver: "7z a",
+        #     generators: "Ninja"
+        #   }          
 
     steps:       
+
+    # - name: Install dependencies on ubuntu
+    #   if: startsWith(matrix.config.name, 'Ubuntu_Latest_GCC')
+    #   run: |
+    #     sudo apt-get update
+    #     sudo apt-get install ninja-build cmake
+    #     ninja --version
+    #     cmake --version
+    #     gcc --version
 
     - name: Install Bitbuket SSH key
       uses: shimataro/ssh-key-action@v2
@@ -52,19 +71,24 @@ jobs:
     #     Start-Process -Wait -FilePath $PWD\inno.exe -Argument "/silent" -PassThru
 
     - name: Install boost
-      uses: MarkusJx/install-boost@v2.4.1
-      id: install-boost
-      with:
-          # REQUIRED: Specify the required boost version
-          # A list of supported versions can be found here:
-          # https://github.com/MarkusJx/prebuilt-boost/blob/main/versions-manifest.json
-          boost_version: 1.80.0
-          # OPTIONAL: Specify a custon install location
-          boost_install_dir: C:\boost
-          # OPTIONAL: Specify a platform version
-          # platform_version: 2019
-          # OPTIONAL: Specify a toolset
-          toolset: msvc
+      run: |
+        Invoke-WebRequest -OutFile boost.exe -Uri https://sourceforge.net/projects/boost/files/boost-binaries/1.80.0/boost_1_80_0-msvc-14.1-32.exe/download
+        Start-Process -Wait -FilePath $PWD\boost.exe -Argument "/silent" -PassThru
+
+    # - name: Install boost
+    #   uses: MarkusJx/install-boost@v2.4.1
+    #   id: install-boost
+    #   with:
+    #       # REQUIRED: Specify the required boost version
+    #       # A list of supported versions can be found here:
+    #       # https://github.com/MarkusJx/prebuilt-boost/blob/main/versions-manifest.json
+    #       boost_version: 1.80.0
+    #       # OPTIONAL: Specify a custon install location
+    #       boost_install_dir: C:\boost
+    #       # OPTIONAL: Specify a platform version
+    #       # platform_version: 2019
+    #       # OPTIONAL: Specify a toolset
+    #       toolset: msvc
 
     - name: Install Node.js and NPM
       uses: actions/setup-node@v1
@@ -84,8 +108,8 @@ jobs:
         cmake .
         CMAKE --build .
         dir bin/     
-      env:
-          BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT }}        
+      # env:
+      #     BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT }}        
 
     - name: Build Socket Server
       shell: pwsh
@@ -93,8 +117,8 @@ jobs:
         cd s1000_backend/server
         npm install
         npx electron-packager . --overwrite --arch x64 --platform win32
-      env:
-          BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT }}     
+      # env:
+      #     BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT }}     
 
 
 
