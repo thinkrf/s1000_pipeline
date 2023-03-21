@@ -84,7 +84,7 @@ jobs:
           # https://github.com/MarkusJx/prebuilt-boost/blob/main/versions-manifest.json
           boost_version: 1.80.0
           # OPTIONAL: Specify a custon install location
-          # boost_install_dir: C:\boost
+          boost_install_dir: C:\Program Files\boost\boost_1_80_0\
           # OPTIONAL: Specify a platform version
           # platform_version: 2019
           # OPTIONAL: Specify a toolset
