@@ -1,4 +1,4 @@
-name: S1000 Frontend Pipeline
+name: S1000 Web Application Pipeline
 
 on:
   # Allows you to run this workflow manually from the Actions tab
