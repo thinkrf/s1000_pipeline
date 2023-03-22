@@ -90,6 +90,12 @@ jobs:
     #       # OPTIONAL: Specify a toolset
     #       toolset: msvc
     #       cache: true
+    - name: Cache Boost
+      uses: actions/cache@v2
+      with:
+        path: '${{ runner.workspace }}/boost_*.tar.gz'
+        key: 'boost-1.80.0'
+
     - name: Build Boost
       id: boost
       uses: egor-tensin/build-boost@v1
@@ -99,6 +105,7 @@ jobs:
         platform: x64
         configuration: Release
         static-runtime: 1
+        static: 1
 
     - name: Show paths
       run: |
