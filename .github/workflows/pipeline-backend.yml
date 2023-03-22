@@ -91,8 +91,8 @@ jobs:
           toolset: msvc
           cache: true
 
-    # - name: Test
-    #   run: dir ${{ steps.install-boost.outputs.BOOST_ROOT }}
+    - name: Test
+      run: dir ${{ steps.install-boost.outputs.BOOST_ROOT }}/boost/range/algorithm
 
     # - name: Install Node.js and NPM
     #   uses: actions/setup-node@v1
