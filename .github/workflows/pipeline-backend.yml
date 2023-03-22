@@ -84,39 +84,40 @@ jobs:
           # https://github.com/MarkusJx/prebuilt-boost/blob/main/versions-manifest.json
           boost_version: 1.80.0
           # OPTIONAL: Specify a custon install location
-          boost_install_dir: C:\Program Files\boost\boost_1_80_0\
+          boost_install_dir: C:\boost
           # OPTIONAL: Specify a platform version
           # platform_version: 2019
           # OPTIONAL: Specify a toolset
           toolset: msvc
 
-    - name: Install Node.js and NPM
-      uses: actions/setup-node@v1
-      with:
-        node-version: 14
+    # - name: Test
+    #   run: dir C:\boost\boost
 
-    - name: Retrieve Repository
-      run: |
-        git clone git@bitbucket-git:thinkrfsoftware/s1000_backend.git
-        cd s1000_backend
-        git checkout ${{ github.event.inputs.releaseTag }}
+    # - name: Install Node.js and NPM
+    #   uses: actions/setup-node@v1
+    #   with:
+    #     node-version: 14
 
-    - name: Build Client
-      shell: pwsh
-      run: |
-        cd s1000_backend
-        cmake . -DBOOST_ROOT=${{ steps.install-boost.outputs.BOOST_ROOT }}
-        CMAKE --build .
-        dir bin/     
-      # env:
-      #     BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT }}        
+    # - name: Retrieve Repository
+    #   run: |
+    #     git clone git@bitbucket-git:thinkrfsoftware/s1000_backend.git
+    #     cd s1000_backend
+    #     git checkout ${{ github.event.inputs.releaseTag }}
 
-    - name: Build Socket Server
-      shell: pwsh
-      run: |
-        cd s1000_backend/server
-        npm install
-        npx electron-packager . --overwrite --arch x64 --platform win32
+    # - name: Build Client
+    #   shell: pwsh
+    #   run: |
+    #     cd s1000_backend
+    #     cmake .
+    #     CMAKE --build .
+    #     dir bin/           
+
+    # - name: Build Socket Server
+    #   shell: pwsh
+    #   run: |
+    #     cd s1000_backend/server
+    #     npm install
+    #     npx electron-packager . --overwrite --arch x64 --platform win32
       # env:
       #     BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT }}     
 
