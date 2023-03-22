@@ -109,11 +109,11 @@ jobs:
       shell: pwsh
       run: |
         cd s1000_backend
-        cmake . -DBOOST_ROOT=${{ steps.install-boost.outputs.BOOST_ROOT }}
+        cmake . -DBOOST_ROOT=D:\a\s1000_pipeline\s1000_pipeline\boost\boost
         CMAKE --build .
         dir bin/
       env:
-          BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT }}                       
+          BOOST_ROOT: D:\a\s1000_pipeline\s1000_pipeline\boost\boost                       
 
     # - name: Build Socket Server
     #   shell: pwsh
