@@ -84,14 +84,15 @@ jobs:
           # https://github.com/MarkusJx/prebuilt-boost/blob/main/versions-manifest.json
           boost_version: 1.80.0
           # OPTIONAL: Specify a custon install location
-          boost_install_dir: C:\boost
+          # boost_install_dir: C:\boost
           # OPTIONAL: Specify a platform version
-          # platform_version: 2019
+          platform_version: 2019
           # OPTIONAL: Specify a toolset
           toolset: msvc
+          cache: true
 
-    # - name: Test
-    #   run: dir C:\boost\boost
+    - name: Test
+      run: dir ${{ steps.install-boost.outputs.BOOST_ROOT }}
 
     # - name: Install Node.js and NPM
     #   uses: actions/setup-node@v1
