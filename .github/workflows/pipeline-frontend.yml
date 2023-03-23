@@ -78,7 +78,7 @@ jobs:
 
     - name: Deploy
       run: |
-        echo "echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} > ~/docker_token.txt; cat ~/docker_token.txt | docker login --username ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin; rm -f ~/docker_token.txt; docker stop $(docker ps -aq); sleep 5; docker rm $(docker ps -aq) sleep 5; sudo systemctl stop docker; sleep 5; sudo systemctl start docker; sleep 5; docker pull thinkrf/s1000_frontend:${{ github.event.inputs.releaseTag }}; sleep 3; docker run --name s1000_${{ github.event.inputs.appEnv }}-${{ github.event.inputs.releaseTag }} -d -p ${{ env.APP_PORT }}:3000 thinkrf/s1000_frontend:${{ github.event.inputs.releaseTag }}" | ssh ubuntu@aws-ec2 /bin/bash
+        echo "echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} > ~/docker_token.txt; cat ~/docker_token.txt | docker login --username ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin; rm -f ~/docker_token.txt; docker stop $(docker ps -aq); sleep 5; docker rm $(docker ps -aq); sleep 5; sudo systemctl stop docker; sleep 5; sudo systemctl start docker; sleep 5; docker pull thinkrf/s1000_frontend:${{ github.event.inputs.releaseTag }}; sleep 3; docker run --name s1000_${{ github.event.inputs.appEnv }}-${{ github.event.inputs.releaseTag }} -d -p ${{ env.APP_PORT }}:3000 thinkrf/s1000_frontend:${{ github.event.inputs.releaseTag }}" | ssh ubuntu@aws-ec2 /bin/bash
 
     # - name: Deploy to AWS Elastic Beanstalk
     #   uses: einaregilsson/beanstalk-deploy@v21
