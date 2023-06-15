@@ -35,23 +35,24 @@ jobs:
           echo "AWS_HOST=${{ vars.AWS_EC2_HOST_PROD }}" >> $GITHUB_ENV;             
         fi        
 
-    - name: X
-      run: |  
-        echo "AWS_KEY: ${{ env.AWS_KEY }}"
-        echo "AWS_KNOWN_HOSTS: ${{ env.AWS_KNOWN_HOSTS }}"
-        echo "AWS_HOST: ${{ env.AWS_HOST }}"
-        echo "${{ env.APP_PORT }}"
-    # - name: Install Bitbuket SSH key
-    #   uses: shimataro/ssh-key-action@v2
-    #   with:
-    #     key: ${{ secrets.BITBUCKET_SSH_PRIVATE_KEY }}
-    #     name: id_rsa_bit
-    #     known_hosts: ${{ secrets.KNOWN_HOSTS_BITBUCKET }}
-    #     config: |
-    #       Host bitbucket-git
-    #         HostName bitbucket.org
-    #         IdentityFile ~/.ssh/id_rsa_bit
-    #     if_key_exists: replace
+    # - name: X
+    #   run: |  
+    #     echo "AWS_KEY: ${{ env.AWS_KEY }}"
+    #     echo "AWS_KNOWN_HOSTS: ${{ env.AWS_KNOWN_HOSTS }}"
+    #     echo "AWS_HOST: ${{ env.AWS_HOST }}"
+    #     echo "${{ env.APP_PORT }}"
+    - name: Install Bitbuket SSH key
+      if: ${{ github.event.inputs.appEnv == "prod" }}
+      uses: shimataro/ssh-key-action@v2
+      with:
+        key: ${{ secrets.BITBUCKET_SSH_PRIVATE_KEY }}
+        name: id_rsa_bit
+        known_hosts: ${{ secrets.KNOWN_HOSTS_BITBUCKET }}
+        config: |
+          Host bitbucket-git
+            HostName bitbucket.org
+            IdentityFile ~/.ssh/id_rsa_bit
+        if_key_exists: replace
 
     # - name: Install AWS EC2 SSH key
     #   uses: shimataro/ssh-key-action@v2
