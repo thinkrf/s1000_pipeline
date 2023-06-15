@@ -25,24 +25,12 @@ jobs:
         echo "Release ${{ github.event.inputs.releaseTag }}"
         echo "Environment ${{ github.event.inputs.appEnv }}" 
 
-    # - name: Parse App Name
-    #   run: |  
-
-    #     if [ ${{ github.event.inputs.appEnv }} == "prod" ]; then 
-    #       echo "APP_PORT=3001" >> $GITHUB_ENV; 
-    #       echo "AWS_KEY=${{ secrets.AWS_EC2_SSH_PRIVATE_KEY }}" >> $GITHUB_ENV;
-    #       echo "AWS_KNOWN_HOSTS=${{ secrets.KNOWN_HOSTS_AWS_EC2 }}" >> $GITHUB_ENV;
-    #       echo "AWS_HOST=${{ vars.AWS_EC2_HOST_PROD }}" >> $GITHUB_ENV;             
-    #     fi        
-
-    # - name: X
-    #   run: |  
-    #     echo "AWS_KEY: ${{ env.AWS_KEY }}"
-    #     echo "AWS_KNOWN_HOSTS: ${{ env.AWS_KNOWN_HOSTS }}"
-    #     echo "AWS_HOST: ${{ env.AWS_HOST }}"
-    #     echo "${{ env.APP_PORT }}"
+        - name: Parse App Name
+        run: |  
+          if [ ${{ github.event.inputs.appEnv }} == "dev" ]; then echo "APP_PORT=3000" >> $GITHUB_ENV; fi 
+          if [ ${{ github.event.inputs.appEnv }} == "test" ]; then echo "APP_PORT=3001" >> $GITHUB_ENV; fi         
+  
     - name: Install Bitbuket SSH key
-      if: ${{ github.event.inputs.appEnv == 'test' }}
       uses: shimataro/ssh-key-action@v2
       with:
         key: ${{ secrets.BITBUCKET_SSH_PRIVATE_KEY }}
@@ -54,47 +42,74 @@ jobs:
             IdentityFile ~/.ssh/id_rsa_bit
         if_key_exists: replace
 
-    # - name: Install AWS EC2 SSH key
-    #   uses: shimataro/ssh-key-action@v2
-    #   with:
-    #     key: ${{ env.AWS_KEY }}
-    #     name: id_rsa_aws_ec2
-    #     known_hosts: ${{ env.AWS_KNOWN_HOSTS }}
-    #     config: |
-    #       Host aws-ec2
-    #         HostName ${{ env.AWS_HOST }}
-    #         IdentityFile ~/.ssh/id_rsa_aws_ec2
-    #     if_key_exists: replace
+    - name: Install AWS EC2 SSH key (prod)
+      if: ${{ github.event.inputs.appEnv == 'prod' }}
+      uses: shimataro/ssh-key-action@v2
+      with:
+        key: ${{ secrets.AWS_EC2_SSH_PRIVATE_KEY_PROD }}
+        name: id_rsa_aws_ec2
+        known_hosts: ${{ secrets.KNOWN_HOSTS_AWS_EC2_PROD }}
+        config: |
+          Host aws-ec2
+            HostName ${{ vars.AWS_EC2_HOST_PROD }}
+            IdentityFile ~/.ssh/id_rsa_aws_ec2
+        if_key_exists: replace
 
-    # - name: Retrieve Repository
-    #   run: |
-    #     git clone git@bitbucket-git:thinkrfsoftware/s1000_frontend.git
-    #     cd s1000_frontend
-    #     git checkout ${{ github.event.inputs.releaseTag }}
+    - name: Install AWS EC2 SSH key (test)
+      if: ${{ github.event.inputs.appEnv == 'test' }}
+      uses: shimataro/ssh-key-action@v2
+      with:
+        key: ${{ secrets.AWS_EC2_SSH_PRIVATE_KEY_TEST }}
+        name: id_rsa_aws_ec2
+        known_hosts: ${{ secrets.KNOWN_HOSTS_AWS_EC2_TEST }}
+        config: |
+          Host aws-ec2
+            HostName ${{ vars.AWS_EC2_HOST_TEST }}
+            IdentityFile ~/.ssh/id_rsa_aws_ec2
+        if_key_exists: replace
+          
+    - name: Install AWS EC2 SSH key (dev)
+      if: ${{ github.event.inputs.appEnv == 'dev' }}
+      uses: shimataro/ssh-key-action@v2
+      with:
+        key: ${{ secrets.AWS_EC2_SSH_PRIVATE_KEY_DEV }}
+        name: id_rsa_aws_ec2
+        known_hosts: ${{ secrets.KNOWN_HOSTS_AWS_EC2_DEV }}
+        config: |
+          Host aws-ec2
+            HostName ${{ vars.AWS_EC2_HOST_DEV }}
+            IdentityFile ~/.ssh/id_rsa_aws_ec2
+        if_key_exists: replace
 
-    # - name: Set up QEMU
-    #   uses: docker/setup-qemu-action@v1
+    - name: Retrieve Repository
+      run: |
+        git clone git@bitbucket-git:thinkrfsoftware/s1000_frontend.git
+        cd s1000_frontend
+        git checkout ${{ github.event.inputs.releaseTag }}
 
-    # - name: Set up Docker Buildx
-    #   uses: docker/setup-buildx-action@v1
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v1
 
-    # - name: Log in to the Container registry
-    #   uses: docker/login-action@v1
-    #   with:
-    #     username: ${{ secrets.DOCKER_HUB_USERNAME }}
-    #     password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+
+    - name: Log in to the Container registry
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
     
-    # - name: Build and push Docker image
-    #   id: docker_build
-    #   uses: docker/build-push-action@v2
-    #   with:
-    #     context: s1000_frontend/
-    #     push: true
-    #     tags: thinkrf/s1000_frontend:${{ github.event.inputs.releaseTag }}
+    - name: Build and push Docker image
+      id: docker_build
+      uses: docker/build-push-action@v2
+      with:
+        context: s1000_frontend/
+        push: true
+        tags: thinkrf/s1000_frontend:${{ github.event.inputs.releaseTag }}
 
-    # - name: Deploy
-    #   run: |
-    #     echo "echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} > ~/docker_token.txt; cat ~/docker_token.txt | docker login --username ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin; rm -f ~/docker_token.txt; docker system prune --all --force; sleep 3; sudo systemctl stop docker; sleep 3; sudo systemctl start docker; sleep 3; docker pull thinkrf/s1000_frontend:${{ github.event.inputs.releaseTag }}; sleep 3; docker rm -f s1000_${{ github.event.inputs.appEnv }}-${{ github.event.inputs.releaseTag }}; docker run --name s1000_${{ github.event.inputs.appEnv }}-${{ github.event.inputs.releaseTag }} -d -p ${{ env.APP_PORT }}:3000 thinkrf/s1000_frontend:${{ github.event.inputs.releaseTag }}" | ssh ubuntu@aws-ec2 /bin/bash
+    - name: Deploy
+      run: |
+        echo "echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} > ~/docker_token.txt; cat ~/docker_token.txt | docker login --username ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin; rm -f ~/docker_token.txt; docker system prune --all --force; sleep 3; sudo systemctl stop docker; sleep 3; sudo systemctl start docker; sleep 3; docker pull thinkrf/s1000_frontend:${{ github.event.inputs.releaseTag }}; sleep 3; docker rm -f s1000_${{ github.event.inputs.appEnv }}-${{ github.event.inputs.releaseTag }}; docker run --name s1000_${{ github.event.inputs.appEnv }}-${{ github.event.inputs.releaseTag }} -d -p ${{ env.APP_PORT }}:3000 thinkrf/s1000_frontend:${{ github.event.inputs.releaseTag }}" | ssh ubuntu@aws-ec2 /bin/bash
 
     #===============================================================
     # echo "echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} > ~/docker_token.txt; cat ~/docker_token.txt | docker login --username ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin; rm -f ~/docker_token.txt; docker stop $(docker ps -aq); sleep 5; docker rm $(docker ps -aq); sleep 5; sudo systemctl stop docker; sleep 5; sudo systemctl start docker; sleep 5; docker pull thinkrf/s1000_frontend:${{ github.event.inputs.releaseTag }}; sleep 3; docker run --name s1000_${{ github.event.inputs.appEnv }}-${{ github.event.inputs.releaseTag }} -d -p ${{ env.APP_PORT }}:3000 thinkrf/s1000_frontend:${{ github.event.inputs.releaseTag }}" | ssh ubuntu@aws-ec2 /bin/bash
