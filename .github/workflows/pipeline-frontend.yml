@@ -38,7 +38,7 @@ jobs:
     - name: X
       run: |  
         echo "AWS_KEY: ${{ secrets.AWS_EC2_SSH_PRIVATE_KEY_[env.APP_ENV] }}"
-        echo "AWS_KNOWN_HOSTS: ${{ env.AWS_KNOWN_HOSTS }}"
+        echo "AWS_KNOWN_HOSTS: ${{ secrets.KNOWN_HOSTS_AWS_EC2_[env.APP_ENV] }}"
         echo "AWS_HOST: ${{ env.AWS_HOST }}"
         echo "${{ env.APP_PORT }}"
     # - name: Install Bitbuket SSH key
