@@ -60,12 +60,12 @@ jobs:
       if: ${{ github.event.inputs.appEnv == 'test' }}
       uses: shimataro/ssh-key-action@v2
       with:
-        key: ${{ secrets.AWS_EC2_SSH_PRIVATE_KEY_TEST }}
+        key: ${{ secrets.AWS_EC2_SSH_PRIVATE_KEY }}
         name: id_rsa_aws_ec2
-        known_hosts: ${{ secrets.KNOWN_HOSTS_AWS_EC2_TEST }}
+        known_hosts: ${{ secrets.KNOWN_HOSTS_AWS_EC2 }}
         config: |
           Host aws-ec2
-            HostName ${{ vars.AWS_EC2_HOST_TEST }}
+            HostName ${{ vars.AWS_EC2_HOST }}
             IdentityFile ~/.ssh/id_rsa_aws_ec2
         if_key_exists: replace
           
