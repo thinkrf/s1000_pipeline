@@ -51,11 +51,13 @@ jobs:
           echo "AWS_KNOWN_HOSTS=B" >> $GITHUB_ENV;
           echo "AWS_HOST=C" >> $GITHUB_ENV;            
         fi        
+        
+    - name: X
+      run: |  
         echo "AWS_KEY: ${{ env.AWS_KEY }}"
         echo "AWS_KNOWN_HOSTS: ${{ env.AWS_KNOWN_HOSTS }}"
         echo "AWS_HOST: ${{ env.AWS_HOST }}"
         echo "${{ env.APP_PORT }}"
-
     # - name: Install Bitbuket SSH key
     #   uses: shimataro/ssh-key-action@v2
     #   with:
