@@ -56,12 +56,12 @@ jobs:
     - name: Install AWS EC2 SSH key
       uses: shimataro/ssh-key-action@v2
       with:
-        key: ${{ secrets.AWS_EC2_SSH_PRIVATE_KEY }}_${{ env.APP_ENV_NAME }}
+        key: ${{ secrets.AWS_EC2_SSH_PRIVATE_KEY_${{ env.APP_ENV_NAME }} }}
         name: id_rsa_aws_ec2
-        known_hosts: ${{ secrets.KNOWN_HOSTS_AWS_EC2 }}_${{ env.APP_ENV_NAME }}
+        known_hosts: ${{ secrets.KNOWN_HOSTS_AWS_EC2_${{ env.APP_ENV_NAME }} }}
         config: |
           Host aws-ec2
-            HostName ${{ vars.AWS_EC2_HOST }}_${{ env.APP_ENV_NAME }}
+            HostName ${{ vars.AWS_EC2_HOST_${{ env.APP_ENV_NAME }} }}
             IdentityFile ~/.ssh/id_rsa_aws_ec2
         if_key_exists: replace
 
