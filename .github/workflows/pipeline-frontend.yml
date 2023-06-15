@@ -20,12 +20,26 @@ jobs:
       packages: write
 
     steps:
+    - name: Print Release Version
+      run: |
+        echo "Release ${{ github.event.inputs.releaseTag }}"
+        echo "Environment ${{ github.event.inputs.appEnv }}" 
 
     - name: Parse App Name
       run: |  
-        if [ ${{ github.event.inputs.appEnv }} == "dev" ]; then echo "APP_PORT=3000" >> $GITHUB_ENV; fi 
-        if [ ${{ github.event.inputs.appEnv }} == "test" ]; then echo "APP_PORT=3001" >> $GITHUB_ENV; fi  
-        if [ ${{ github.event.inputs.appEnv }} == "prod" ]; then echo "APP_PORT=3001" >> $GITHUB_ENV; fi        
+        echo "APP_PORT=3000" >> $GITHUB_ENV;
+        if [ ${{ github.event.inputs.appEnv }} == "dev" ]; then 
+          echo "APP_PORT=3000" >> $GITHUB_ENV; 
+          echo "APP_ENV_NAME=DEV" >> $GITHUB_ENV;
+        fi 
+        if [ ${{ github.event.inputs.appEnv }} == "test" ]; then 
+          echo "APP_PORT=3001" >> $GITHUB_ENV; 
+          echo "APP_ENV_NAME=TEST" >> $GITHUB_ENV;
+        fi  
+        if [ ${{ github.event.inputs.appEnv }} == "prod" ]; then 
+          echo "APP_PORT=3001" >> $GITHUB_ENV; 
+          echo "APP_ENV_NAME=PROD" >> $GITHUB_ENV;
+        fi        
         
     - name: Install Bitbuket SSH key
       uses: shimataro/ssh-key-action@v2
@@ -42,12 +56,12 @@ jobs:
     - name: Install AWS EC2 SSH key
       uses: shimataro/ssh-key-action@v2
       with:
-        key: ${{ secrets.AWS_EC2_SSH_PRIVATE_KEY }}_${${{ github.event.inputs.appEnv }}^^}
+        key: ${{ secrets.AWS_EC2_SSH_PRIVATE_KEY }}_${{ env.APP_ENV_NAME }}
         name: id_rsa_aws_ec2
-        known_hosts: ${{ secrets.KNOWN_HOSTS_AWS_EC2 }}_${${{ github.event.inputs.appEnv }}^^}
+        known_hosts: ${{ secrets.KNOWN_HOSTS_AWS_EC2 }}_${{ env.APP_ENV_NAME }}
         config: |
           Host aws-ec2
-            HostName ${{ vars.AWS_EC2_HOST }}_${${{ github.event.inputs.appEnv }}^^}
+            HostName ${{ vars.AWS_EC2_HOST }}_${{ env.APP_ENV_NAME }}
             IdentityFile ~/.ssh/id_rsa_aws_ec2
         if_key_exists: replace
 
