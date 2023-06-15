@@ -30,7 +30,7 @@ jobs:
 
         if [ ${{ github.event.inputs.appEnv }} == "prod" ]; then 
           echo "APP_PORT=3001" >> $GITHUB_ENV; 
-          echo "AWS_KEY=\"${{ secrets.AWS_EC2_SSH_PRIVATE_KEY_PROD }}\"" >> $GITHUB_ENV;
+          echo 'AWS_KEY="${{ secrets.AWS_EC2_SSH_PRIVATE_KEY_PROD }}"' >> $GITHUB_ENV;
           echo "AWS_KNOWN_HOSTS=${{ secrets.KNOWN_HOSTS_AWS_EC2_PROD }}" >> $GITHUB_ENV;
           echo "AWS_HOST=${{ vars.AWS_EC2_HOST_PROD }}" >> $GITHUB_ENV;             
         fi        
