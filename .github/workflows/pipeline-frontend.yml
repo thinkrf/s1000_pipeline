@@ -37,7 +37,7 @@ jobs:
       run: |  
         # echo "AWS_KEY: ${{ env.AWS_KEY }}"
         # echo "AWS_KNOWN_HOSTS: ${{ env.AWS_KNOWN_HOSTS }}"
-        # echo "AWS_HOST: ${{ env.AWS_HOST }}"
+        echo "AWS_HOST: ${{ env.AWS_HOST }}"
         echo "${{ env.APP_PORT }}"
     # - name: Install Bitbuket SSH key
     #   uses: shimataro/ssh-key-action@v2
