@@ -42,7 +42,7 @@ jobs:
     #     echo "AWS_HOST: ${{ env.AWS_HOST }}"
     #     echo "${{ env.APP_PORT }}"
     - name: Install Bitbuket SSH key
-      if: ${{ github.event.inputs.appEnv == 'prod' }}
+      if: ${{ github.event.inputs.appEnv == 'test' }}
       uses: shimataro/ssh-key-action@v2
       with:
         key: ${{ secrets.BITBUCKET_SSH_PRIVATE_KEY }}
