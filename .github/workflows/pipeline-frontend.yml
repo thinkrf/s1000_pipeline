@@ -25,6 +25,9 @@ jobs:
         echo "Release ${{ github.event.inputs.releaseTag }}"
         echo "Environment ${{ github.event.inputs.appEnv }}" 
 
+    - name: Display Secret Value
+      run: echo "Secret Value: ${{ secrets.AWS_EC2_SSH_PRIVATE_KEY_${{ github.event.inputs.appEnv }} }}"
+
     - name: Parse App Name
       run: |  
         # Defaul values
