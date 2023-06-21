@@ -29,7 +29,7 @@ jobs:
       run: |  
         if [ ${{ github.event.inputs.appEnv }} == "dev" ]; then echo "APP_PORT=3000" >> $GITHUB_ENV; fi 
         if [ ${{ github.event.inputs.appEnv }} == "test" ]; then echo "APP_PORT=3001" >> $GITHUB_ENV; fi
-        if [ ${{ github.event.inputs.appEnv }} == "prod" ]; then echo "APP_PORT=443" >> $GITHUB_ENV; fi 
+        if [ ${{ github.event.inputs.appEnv }} == "prod" ]; then echo "APP_PORT=3001" >> $GITHUB_ENV; fi 
 
     - name: Install Bitbuket SSH key
       uses: shimataro/ssh-key-action@v2
