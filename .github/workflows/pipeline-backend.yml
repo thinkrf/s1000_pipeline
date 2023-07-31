@@ -7,9 +7,9 @@ on:
       releaseTag:
         description: 'The s1000 backend tag that you would like to create a release. Ex: 1.3.0'     
         required: true    
-      appEnv:
-        description: 'App Environment: options (test)'     
-        required: True  
+      linuxChangelogDescription:
+        description: 'A sentence or short paragraph describing the changes since last packaging'
+        required: false
 
 jobs:
   build:
@@ -19,18 +19,17 @@ jobs:
       fail-fast: false
       matrix:
         config: 
-        - {
             name: "Windows Latest MSVC",
             os: windows-latest,
             artifact: "windows_msvc.7z",
             build_type: "Release",
             cc: "cl",
             cxx: "cl",
+            #Visual Studio 2019 is specifically needed in order to build, as the location (and sometimes name) of this vital file changes between versions
             environment_script: "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat",
             archiver: "7z a",
             generators: "Visual Studio 16 2019"
-          }
-        # - {
+        # 
         #     name: "Ubuntu_Latest_GCC",
         #     os: ubuntu-latest,
         #     artifact: "ubuntu_gcc.7z",
@@ -39,7 +38,7 @@ jobs:
         #     cxx: "g++",
         #     archiver: "7z a",
         #     generators: "Ninja"
-        #   }          
+        #             
 
     steps:       
 
@@ -47,7 +46,7 @@ jobs:
     #   if: startsWith(matrix.config.name, 'Ubuntu_Latest_GCC')
     #   run: |
     #     sudo apt-get update
-    #     sudo apt-get install ninja-build cmake
+    #     sudo apt-get install ninja-build cmake libwebsocketpp-dev python
     #     ninja --version
     #     cmake --version
     #     gcc --version
@@ -64,11 +63,13 @@ jobs:
             IdentityFile ~/.ssh/id_rsa_bit
         if_key_exists: replace
 
-    # - name: Inno-setup
-    #   shell: pwsh
-    #   run: |
-    #     Invoke-WebRequest -OutFile inno.exe -Uri https://jrsoftware.org/download.php/is.exe
-    #     Start-Process -Wait -FilePath $PWD\inno.exe -Argument "/silent" -PassThru
+
+     - name: Inno-setup
+       shell: pwsh
+       run: |
+         Invoke-WebRequest -OutFile inno.exe -Uri https://jrsoftware.org/download.php/is.exe
+         Start-Process -Wait -FilePath $PWD\inno.exe -Argument "/silent" -PassThru
+
 
     # - name: Install boost
     #   run: |
@@ -90,18 +91,13 @@ jobs:
     #       # OPTIONAL: Specify a toolset
     #       toolset: msvc
     #       cache: true
-    - name: Cache Boost
-      uses: actions/cache@v2
-      with:
-        path: '${{ runner.workspace }}/boost_*.tar.gz'
-        key: 'boost-1.80.0'
 
     - name: Build Boost
       id: boost
       uses: egor-tensin/build-boost@v1
       with:
         version: 1.80.0
-        libraries: filesystem program_options system
+        libraries: filesystem regex iostreams system
         platform: x64
         configuration: Release
         static-runtime: 1
@@ -121,31 +117,39 @@ jobs:
     #   with:
     #     node-version: 14
 
-    - name: Retrieve Repository
+    - name: Retrieve Backend Repository
       run: |
         git clone git@bitbucket-git:thinkrfsoftware/s1000_backend.git
         cd s1000_backend
         git checkout ${{ github.event.inputs.releaseTag }}
-
-    - name: Build Client
-      shell: pwsh
+        cd ..
+      
+    - name: Retrieve Installer Repository
       run: |
-        cd s1000_backend
-        cmake -D "BOOST_ROOT=${{ steps.boost.outputs.root }}" -D "BOOST_LIBRARYDIR=${{ steps.boost.outputs.librarydir }}" .
-        CMAKE --build .
-        dir bin/
-      env:
-          BOOST_ROOT: D:\a\s1000_pipeline\s1000_pipeline\boost\boost                       
-
-    # - name: Build Socket Server
-    #   shell: pwsh
-    #   run: |
-    #     cd s1000_backend/server
-    #     npm install
-    #     npx electron-packager . --overwrite --arch x64 --platform win32
-      # env:
-      #     BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT }}     
-
+        git clone git@bitbucket.org:thinkrfsoftware/s1000-installer.git      
+    
+    
+    - name: Get WebsocketPP
+      run: |
+        git clone https://github.com/zaphoyd/websocketpp.git
+        mkdir build && cd build
+        cmake .. -DCMAKE_INSTALL_PREFIX="C:/Program Files/websocketpp"
+        cmake --build . --target install --config Release
+    
+    
+    - name: Get OpenSSL
+      run: |
+        Invoke-WebRequest -OutFile openssl.exe -Uri https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/openssl-for-windows/openssl-0.9.8k_WIN32.zip
+        Start-Process -Wait -FilePath $PWD\openssl.exe -Argument "/silent" -PassThru
+        set OPENSSL_ROOT_DIR="C:\Program Files\openssl-0.9.8k_WIN32"
+        set OPENSSL_INCLUDE_DIR="C:\Program Files\openssl-0.9.8k_WIN32\include"
+        set OPENSSL_LIBRARIES="C:\Program Files\openssl-0.9.8k_WIN32\lib"
+        
+        
+    - name: Call Package Builder
+      run: |
+        cd s1000-installer
+        python installer-builder.py ../s1000_backend
 
 
     # - name: Configure CMake
