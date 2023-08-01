@@ -13,29 +13,30 @@ on:
 
 jobs:
   build:
-    name: ${{ matrix.name }}
+    name: "Windows Latest"
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-          name: "Windows Latest MSVC",
-          os: windows-latest,
-          artifact: "windows_msvc.7z",
-          build_type: "Release",
-          cc: "cl",
-          cxx: "cl",
-          #Visual Studio 2019 is specifically needed in order to build, as the location (and sometimes name) of this vital file changes between versions
-          environment_script: "C:/Program Files (x86)/Microsoft Visual Studio/2019/*/VC/Auxiliary/Build/vcvars64.bat",
-          archiver: "7z a",
-          generators: "Visual Studio 16 2019"
+        # This line is where builds for linux can also be called to carry out. More work will need to be done in implementing this
+        os: ["windows-latest"]
+      
+      
+      #   artifact: "windows_msvc.7z"
+      #   build_type: "Release"
+      #   cc: "cl"
+      #   cxx: "cl"
+          # Visual Studio 2019 is specifically needed in order to build, as the location (and sometimes name) of this vital file changes between versions
+      #   environment_script: "C:/Program Files (x86)/Microsoft Visual Studio/2019/*/VC/Auxiliary/Build/vcvars64.bat"
+      #   archiver: "7z a"
+      #   generators: "Visual Studio 16 2019"
+      
       # 
-      #     name: "Ubuntu_Latest_GCC",
-      #     os: ubuntu-latest,
-      #     artifact: "ubuntu_gcc.7z",
-      #     build_type: "Release",
-      #     cc: "gcc",
-      #     cxx: "g++",
-      #     archiver: "7z a",
+      #     artifact: "ubuntu_gcc.7z"
+      #     build_type: "Release"
+      #     cc: "gcc"
+      #     cxx: "g++"
+      #     archiver: "7z a"
       #     generators: "Ninja"
       #             
 
@@ -50,6 +51,7 @@ jobs:
     #     cmake --version
     #     gcc --version
 
+
     - name: Install Bitbuket SSH key
       uses: shimataro/ssh-key-action@v2
       with:
@@ -63,17 +65,12 @@ jobs:
         if_key_exists: replace
 
 
-     - name: Inno-setup
-       shell: pwsh
-       run: |
-         Invoke-WebRequest -OutFile inno.exe -Uri https://jrsoftware.org/download.php/is.exe
-         Start-Process -Wait -FilePath $PWD\inno.exe -Argument "/silent" -PassThru
+    - name: Inno-setup
+      shell: pwsh
+      run: |
+        Invoke-WebRequest -OutFile inno.exe -Uri https://jrsoftware.org/download.php/is.exe
+        Start-Process -Wait -FilePath $PWD\inno.exe -Argument "/silent" -PassThru
 
-
-    # - name: Install boost
-    #   run: |
-    #     Invoke-WebRequest -OutFile boost.exe -Uri https://sourceforge.net/projects/boost/files/boost-binaries/1.80.0/boost_1_80_0-msvc-14.1-32.exe/download
-    #     Start-Process -Wait -FilePath $PWD\boost.exe -Argument "/silent" -PassThru
 
     # - name: Install boost
     #   uses: MarkusJx/install-boost@v2.4.1
@@ -107,8 +104,8 @@ jobs:
     - name: Get Boost
       run: |
          Invoke-WebRequest -OutFile boost.zip -Uri https://boostorg.jfrog.io/artifactory/main/release/1.80.0/source/boost_1_80_0.zip
-         7z x boost.zip -oboost
-         cd boost/boost_1_80_0
+         7z x boost.zip -o"C:\Program Files\boost"
+         cd "C:\Program Files\boost\boost_1_80_0"
          .\bootstrap.bat
          .\b2
          cd ../..
