@@ -7,9 +7,12 @@ on:
       releaseTag:
         description: 'The s1000 backend tag that you would like to create a release. Ex: 1.3.0'     
         required: true    
-      linuxChangelogDescription:
-        description: 'A sentence or short paragraph describing the changes since last packaging'
-        required: false
+      versionNumber:
+        description: 'The version number to package the backend as. (This is likely the same as the tag)'
+        required: true
+      ChangelogComment:
+        description: 'A sentence or short paragraph describing the important changes since last packaging'
+        required: true
 
 jobs:
   build:
@@ -97,18 +100,26 @@ jobs:
         git checkout ${{ github.event.inputs.releaseTag }}
         cd ..
       
+      
     - name: Retrieve Installer Repository
       run: |
         git clone git@bitbucket.org:thinkrfsoftware/s1000-installer.git      
     
+    
+    - name: Get 7-Zip
+      run: |
+        Invoke-WebRequest -OutFile 7zipper.exe -Uri https://www.7-zip.org/a/7z1900-x64.msi
+        Start-Process 7zipper.exe -Wait -ArgumentList "/i $out /quiet"
+
+    
     - name: Get Boost
       run: |
-         Invoke-WebRequest -OutFile boost.zip -Uri https://boostorg.jfrog.io/artifactory/main/release/1.80.0/source/boost_1_80_0.zip
-         7z x boost.zip -o"C:\Program Files\boost"
-         cd "C:\Program Files\boost\boost_1_80_0"
-         .\bootstrap.bat
-         .\b2
-         cd ../..
+       Invoke-WebRequest -OutFile boost.zip -Uri https://boostorg.jfrog.io/artifactory/main/release/1.80.0/source/boost_1_80_0.zip
+       7z x boost.zip -o"C:\Program Files\boost"
+       cd "C:\Program Files\boost\boost_1_80_0"
+       .\bootstrap.bat
+       .\b2
+       cd ../..
         
     
     
@@ -125,7 +136,7 @@ jobs:
     - name: Call Package Builder
       run: |
         cd s1000-installer
-        python installer-builder.py ../s1000_backend
+        python installer-builder.py ../s1000_backend $versionNumber $changelogComment
 
 
     # - name: Configure CMake
