@@ -103,7 +103,7 @@ jobs:
       
     - name: Retrieve Installer Repository
       run: |
-        git clone git@bitbucket.org:thinkrfsoftware/s1000-installer.git      
+        git clone git@bitbucket-git:thinkrfsoftware/s1000-installer.git      
     
     
     - name: Get 7-Zip
