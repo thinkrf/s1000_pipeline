@@ -141,8 +141,9 @@ jobs:
 
 
     - name: Upload Built Installer
-      with:
-        name: S1000_Agent_${{ github.event.inputs.releaseTag }}_Installer
-        path: windows\S1000_Agent_*        
+      uses: actions/upload-artifact@v3
+        with:
+          name: S1000_Agent_${{ github.event.inputs.releaseTag }}_Installer
+          path: windows\S1000_Agent_*        
 
 
