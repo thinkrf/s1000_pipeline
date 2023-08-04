@@ -108,8 +108,11 @@ jobs:
     
     - name: Get 7-Zip
       run: |
-        Invoke-WebRequest -OutFile 7zipper.exe -Uri https://www.7-zip.org/a/7z1900-x64.msi
-        Start-Process 7zipper.exe -Wait -ArgumentList "/i $out /quiet"
+        Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+        choco install 7zip
+        
+        #Invoke-WebRequest -OutFile 7zip.exe -Uri https://www.7-zip.org/a/7z1900-x64.msi
+        #Start-Process 7zip.exe -Wait -ArgumentList "/i $out /quiet"
 
     
     - name: Get Boost
