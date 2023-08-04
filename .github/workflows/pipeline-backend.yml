@@ -25,24 +25,6 @@ jobs:
         os: ["windows-latest"]
       
       
-      #   artifact: "windows_msvc.7z"
-      #   build_type: "Release"
-      #   cc: "cl"
-      #   cxx: "cl"
-          # Visual Studio 2019 is specifically needed in order to build, as the location (and sometimes name) of this vital file changes between versions
-      #   environment_script: "C:/Program Files (x86)/Microsoft Visual Studio/2019/*/VC/Auxiliary/Build/vcvars64.bat"
-      #   archiver: "7z a"
-      #   generators: "Visual Studio 16 2019"
-      
-      # 
-      #     artifact: "ubuntu_gcc.7z"
-      #     build_type: "Release"
-      #     cc: "gcc"
-      #     cxx: "g++"
-      #     archiver: "7z a"
-      #     generators: "Ninja"
-      #             
-
     steps:       
 
     # - name: Install dependencies on ubuntu
@@ -75,23 +57,6 @@ jobs:
         Start-Process -Wait -FilePath $PWD\inno.exe -Argument "/silent" -PassThru
 
 
-    # - name: Install boost
-    #   uses: MarkusJx/install-boost@v2.4.1
-    #   id: install-boost
-    #   with:
-    #       # REQUIRED: Specify the required boost version
-    #       # A list of supported versions can be found here:
-    #       # https://github.com/MarkusJx/prebuilt-boost/blob/main/versions-manifest.json
-    #       boost_version: 1.80.0
-    #       # OPTIONAL: Specify a custon install location
-    #       # boost_install_dir: C:\boost
-    #       # OPTIONAL: Specify a platform version
-    #       platform_version: 2019
-    #       # OPTIONAL: Specify a toolset
-    #       toolset: msvc
-    #       cache: true
-
-
 
     - name: Retrieve Backend Repository
       run: |
@@ -105,7 +70,9 @@ jobs:
       run: |
         git clone git@bitbucket-git:thinkrfsoftware/s1000-installer.git      
     
-    
+      
+      
+      # The first line of this job may not be needed, but it is included nonetheless for safekeeping
     - name: Get 7-Zip
       run: |
         Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
@@ -115,6 +82,7 @@ jobs:
         #Start-Process 7zip.exe -Wait -ArgumentList "/i $out /quiet"
 
     
+      # This step is the one that will take the longest, but it is nessecary to do it this way because of the peculiar configuration of CMakeLists for windows
     - name: Get Boost
       run: |
        Invoke-WebRequest -OutFile boost.zip -Uri https://boostorg.jfrog.io/artifactory/main/release/1.80.0/source/boost_1_80_0.zip
@@ -133,17 +101,18 @@ jobs:
         cmake --build . --target install --config Release
         cd ..\..
         
-        
+      
     - name: Call Package Builder
       run: |
         cd s1000-installer
         python installer-builder.py ../s1000_backend $versionNumber $changelogComment
 
 
+      # Uploads built windows installer as an artifact
     - name: Upload Built Installer
       uses: actions/upload-artifact@v3
-        with:
-          name: S1000_Agent_${{ github.event.inputs.releaseTag }}_Installer
-          path: windows\S1000_Agent_*        
+      with:
+        name: S1000_Agent_${{ github.event.inputs.releaseTag }}_Installer
+        path: windows\S1000_Agent_*        
 
 
