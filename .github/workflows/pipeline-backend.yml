@@ -55,7 +55,7 @@ jobs:
     #     gcc --version
 
 
-    - name: Install Bitbuket SSH key
+    - name: Install Bitbucket SSH key
       uses: shimataro/ssh-key-action@v2
       with:
         key: ${{ secrets.BITBUCKET_SSH_PRIVATE_KEY }}
@@ -115,11 +115,9 @@ jobs:
     - name: Get Boost
       run: |
        Invoke-WebRequest -OutFile boost.zip -Uri https://boostorg.jfrog.io/artifactory/main/release/1.80.0/source/boost_1_80_0.zip
-       7z x boost.zip -o"C:\Program Files\boost"
-       cd "C:\Program Files\boost\boost_1_80_0"
-       .\bootstrap.bat
-       .\b2
-       cd ../..
+       7z x boost.zip -o"C:\Program Files\boost\boost_1_80_0"
+       "C:\Program Files\boost\boost_1_80_0\boost_1_80_0\bootstrap.bat"
+       "C:\Program Files\boost\boost_1_80_0\boost_1_80_0\b2"
         
     
     
