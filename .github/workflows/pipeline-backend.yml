@@ -120,14 +120,14 @@ jobs:
     
       - name: Install dependencies on ubuntu
         run: |
-          sudo apt update
-          apt search python3.10
-          sudo werfpwoflwkflwekfmw #designed to fail so that the workflow ends after testing the python availabiliy
-          
-          sudo apt-get install ninja-build cmake libwebsocketpp-dev gcc dpkg python3.10
+          sudo apt update && upgrade
+          sudo apt-get install ninja-build cmake libwebsocketpp-dev gcc dpkg software-properties-common
           ninja --version
           cmake --version
           gcc --version
+          sudo add-apt-repository ppa:deadsnakes/ppa -y
+          sudo apt install python3.10
+          
 
 
       - name: Install Bitbucket SSH key
@@ -158,7 +158,7 @@ jobs:
         run: |
           cd s1000-installer
           python --version
-          sudo python3.9 installer-builder.py ../s1000_backend $versionNumber $changelogComment
+          sudo python3.10 installer-builder.py ../s1000_backend $versionNumber $changelogComment
 
       - name: Upload Built Installer
         uses: actions/upload-artifact@v3
