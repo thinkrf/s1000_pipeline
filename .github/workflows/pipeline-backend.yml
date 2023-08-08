@@ -19,7 +19,7 @@ jobs:
     name: "Windows Latest"
     runs-on: ${{ matrix.os }}
     strategy:
-      fail-fast: false
+      #fail-fast: false
       matrix:
         # This line is where builds for linux can also be called to carry out. More work will need to be done in implementing this
         os: ["windows-latest"]
@@ -80,6 +80,12 @@ jobs:
         
         #Invoke-WebRequest -OutFile 7zip.exe -Uri https://www.7-zip.org/a/7z1900-x64.msi
         #Start-Process 7zip.exe -Wait -ArgumentList "/i $out /quiet"
+      
+      
+    - name: Get VS Code
+      run: | 
+        choco install visualstudio2019buildtools --package-parameters "--includeRecommended"
+        choco install vscode
 
     
       # This step is the one that will take the longest, but it is nessecary to do it this way because of the peculiar configuration of CMakeLists for windows
