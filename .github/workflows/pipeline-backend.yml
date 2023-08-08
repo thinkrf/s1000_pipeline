@@ -121,7 +121,7 @@ jobs:
       - name: Install dependencies on ubuntu
         run: |
           sudo apt-get update
-          sudo apt-get install ninja-build cmake libwebsocketpp-dev python gcc gxx dpkg
+          sudo apt-get install ninja-build cmake libwebsocketpp-dev python gcc dpkg
           ninja --version
           cmake --version
           gcc --version
