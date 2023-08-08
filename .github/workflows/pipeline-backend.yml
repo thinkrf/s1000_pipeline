@@ -121,7 +121,8 @@ jobs:
       - name: Install dependencies on ubuntu
         run: |
           sudo apt-get update
-          sudo apt-get install ninja-build cmake libwebsocketpp-dev python3.10 gcc dpkg
+          sudo apt-get install ninja-build cmake libwebsocketpp-dev gcc dpkg
+          sudo apt install -y python3.10 
           ninja --version
           cmake --version
           gcc --version
@@ -155,7 +156,7 @@ jobs:
         run: |
           cd s1000-installer
           python --version
-          sudo python installer-builder.py ../s1000_backend $versionNumber $changelogComment
+          sudo python3.10 installer-builder.py ../s1000_backend $versionNumber $changelogComment
 
       - name: Upload Built Installer
         uses: actions/upload-artifact@v3
