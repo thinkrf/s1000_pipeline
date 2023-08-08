@@ -84,7 +84,7 @@ jobs:
       
     - name: Get VS Code
       run: | 
-        choco install visualstudio2019buildtools --package-parameters "--includeRecommended"
+        choco install visualstudio2022buildtools --package-parameters "--includeRecommended"
         choco install vscode
 
     
