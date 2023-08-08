@@ -15,27 +15,14 @@ on:
         required: true
 
 jobs:
-  build:
+  windows_build:
     name: "Windows Latest"
     runs-on: ${{ matrix.os }}
     strategy:
-      #fail-fast: false
-      matrix:
-        # This line is where builds for linux can also be called to carry out. More work will need to be done in implementing this
-        os: ["windows-latest"]
+      fail-fast: false
       
       
     steps:       
-
-    # - name: Install dependencies on ubuntu
-    #   if: startsWith(matrix.config.name, 'Ubuntu_Latest_GCC')
-    #   run: |
-    #     sudo apt-get update
-    #     sudo apt-get install ninja-build cmake libwebsocketpp-dev python
-    #     ninja --version
-    #     cmake --version
-    #     gcc --version
-
 
     - name: Install Bitbucket SSH key
       uses: shimataro/ssh-key-action@v2
@@ -57,7 +44,6 @@ jobs:
         Start-Process -Wait -FilePath $PWD\inno.exe -Argument "/silent" -PassThru
 
 
-
     - name: Retrieve Backend Repository
       run: |
         git clone git@bitbucket-git:thinkrfsoftware/s1000_backend.git
@@ -70,7 +56,6 @@ jobs:
       run: |
         git clone git@bitbucket-git:thinkrfsoftware/s1000-installer.git      
     
-      
       
       # The first line of this job may not be needed, but it is included nonetheless for safekeeping
     - name: Get 7-Zip
@@ -121,5 +106,61 @@ jobs:
       with:
         name: S1000_Agent_${{ github.event.inputs.releaseTag }}_Installer
         path: windows\S1000_Agent_*        
+
+
+
+
+  ubuntu_build:
+    name: "Ubuntu Build"
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
+      
+    steps:
+    
+      - name: Install dependencies on ubuntu
+        run: |
+          sudo apt-get update
+          sudo apt-get install ninja-build cmake libwebsocketpp-dev python gcc gxx dpkg
+          ninja --version
+          cmake --version
+          gcc --version
+
+
+      - name: Install Bitbucket SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.BITBUCKET_SSH_PRIVATE_KEY }}
+          name: id_rsa_bit
+          known_hosts: ${{ secrets.KNOWN_HOSTS_BITBUCKET }}
+          config: |
+            Host bitbucket-git
+              HostName bitbucket.org
+              IdentityFile ~/.ssh/id_rsa_bit
+          if_key_exists: replace
+          
+      - name: Retrieve Backend Repository
+        run: |
+          git clone git@bitbucket-git:thinkrfsoftware/s1000_backend.git
+          cd s1000_backend
+          git checkout ${{ github.event.inputs.releaseTag }}
+          cd ..
+      
+      
+      - name: Retrieve Installer Repository
+        run: |
+          git clone git@bitbucket-git:thinkrfsoftware/s1000-installer.git      
+    
+      - name: Call Builder
+        run: |
+          cd s1000-installer
+          sudo python installer-builder.py ../s1000_backend $versionNumber $changelogComment
+
+      - name: Upload Built Installer
+        uses: actions/upload-artifact@v3
+        with:
+          name: S1000_Agent_${{ github.event.inputs.releaseTag }}_Installer
+          path: linux/Debian/s1000-agent*.deb  
+
 
 
