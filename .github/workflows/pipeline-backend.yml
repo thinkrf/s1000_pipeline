@@ -154,7 +154,7 @@ jobs:
       - name: Call Builder
         run: |
           cd s1000-installer
-          sudo python installer-builder.py ../s1000_backend $versionNumber $changelogComment
+          sudo python installer-builder.py ../s1000_backend # $versionNumber $changelogComment
 
       - name: Upload Built Installer
         uses: actions/upload-artifact@v3
