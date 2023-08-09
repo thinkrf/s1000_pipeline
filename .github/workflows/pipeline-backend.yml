@@ -104,7 +104,7 @@ jobs:
     - name: Upload Built Installer
       uses: actions/upload-artifact@v3
       with:
-        name: S1000_Agent_${{ github.event.inputs.releaseTag }}_Installer
+        name: S1000_Agent_${{ github.event.inputs.versionNumber }}_Installer
         path: windows\S1000_Agent_*        
 
 
@@ -161,7 +161,7 @@ jobs:
       - name: Upload Built Installer
         uses: actions/upload-artifact@v3
         with:
-          name: S1000_Agent_${{ github.event.inputs.releaseTag }}_Installer
+          name: s1000-agent_${{ github.event.inputs.versionNumber }}_all_deb
           path: linux/Debian/s1000-agent*.deb  
 
 
