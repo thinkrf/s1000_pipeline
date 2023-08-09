@@ -12,7 +12,7 @@ This repoistory is the CI/CD tool working as pipeline to build and release S1000
 - In right side, click in the **+** signal to add a tag for this commit id
 - Add a tag in the format 0.0.0 and click in **create**
 
-#### Buidl and Deploy
+#### Build and Deploy
 - Go to the [S1000 pipeline tool](https://github.com/thinkrf/s1000_pipeline)
 - Click in **Actions**
 - In the left menu, click in **S1000 Frontend Pipeline**
@@ -22,3 +22,21 @@ This repoistory is the CI/CD tool working as pipeline to build and release S1000
     - App Environment: options (dev, test, prod)
 - Click in **Run workflow**
 
+
+## S1000 Backend (Agent) Component
+
+### _Pipeline Steps_ 
+---------------
+#### Tag the Release
+- Go to the [S1000_Backend](https://bitbucket.org/thinkrfsoftware/s1000_backend) repository
+- Tag a commit, ideally in the format 0.0.0 (see above for more detailed instructions)
+
+#### Build Packages and Installers
+- Go to this repository
+- Head to **Actions**
+- Click **S1000 Backend Pipeline**
+- Click **Run workflow**
+- Fill the three fields as prompted. Be sure version number is in format 0.0.0
+- Click **Run workflow**
+
+The pipeline will build for windows and for linux debian/ubuntu, with windows likely taking a significant amount of time longer than linux. Two "artifacts" will be created, one containing the windows installer file and the other containing the debian .deb file. Be sure to download them and save/upload them elsewhere, as the artifacts on Github Actions will dissappear after a few weeks.
