@@ -147,7 +147,8 @@ jobs:
           git clone git@bitbucket-git:thinkrfsoftware/s1000_backend.git
           cd s1000_backend
           git checkout ${{ github.event.inputs.releaseTag }}
-          sudo cp include/libtrf.so /usr/include/s1000
+          sudo mkdir usr/include/s1000
+          sudo cp include/libtrf.so /usr/include/s1000/libtrf.so
           cd ..
       
       
