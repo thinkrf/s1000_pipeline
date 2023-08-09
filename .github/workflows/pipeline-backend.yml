@@ -40,6 +40,8 @@ jobs:
     - name: Inno-setup
       shell: pwsh
       run: |
+        echo %cd%
+        qweqweqweqe
         Invoke-WebRequest -OutFile inno.exe -Uri https://jrsoftware.org/download.php/is.exe
         Start-Process -Wait -FilePath $PWD\inno.exe -Argument "/silent" -PassThru
 
@@ -79,11 +81,10 @@ jobs:
        Invoke-WebRequest -OutFile boost.zip -Uri https://boostorg.jfrog.io/artifactory/main/release/1.80.0/source/boost_1_80_0.zip
        7z x boost.zip -o"C:\Program Files\boost\boost_1_80_0"
        
-       set p=%cd%
        cd "C:\Program Files\boost\boost_1_80_0\boost_1_80_0"
        .\bootstrap.bat
        .\b2.exe
-       cd %p%
+       #cd #placehold
         
     
     
@@ -108,7 +109,7 @@ jobs:
     - name: Upload Built Installer
       uses: actions/upload-artifact@v3
       with:
-        name: S1000_Agent_${{ github.event.inputs.versionNumber }}_Installer
+        name: windows-installer
         path: windows\S1000_Agent_*        
 
 
@@ -165,7 +166,7 @@ jobs:
       - name: Upload Built Installer
         uses: actions/upload-artifact@v3
         with:
-          name: s1000-agent_${{ github.event.inputs.versionNumber }}_all_deb
+          name: debian-package
           path: ./linux/Debian/s1000-agent*.deb  
 
 
