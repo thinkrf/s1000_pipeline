@@ -79,7 +79,7 @@ jobs:
        Invoke-WebRequest -OutFile boost.zip -Uri https://boostorg.jfrog.io/artifactory/main/release/1.80.0/source/boost_1_80_0.zip
        7z x boost.zip -o"C:\Program Files\boost\boost_1_80_0"
        start "C:\Program Files\boost\boost_1_80_0\boost_1_80_0\bootstrap.bat"
-       start "C:\Program Files\boost\boost_1_80_0\boost_1_80_0\b2"
+       start "C:\Program Files\boost\boost_1_80_0\boost_1_80_0\b2.exe"
         
     
     
