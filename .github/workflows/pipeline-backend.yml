@@ -122,9 +122,6 @@ jobs:
         run: |
           sudo apt update && sudo apt upgrade
           sudo apt-get install ninja-build cmake libwebsocketpp-dev libboost-all-dev gcc dpkg software-properties-common
-          ninja --version
-          cmake --version
-          gcc --version
           sudo add-apt-repository ppa:deadsnakes/ppa -y
           sudo apt install python3.10
           
@@ -147,7 +144,7 @@ jobs:
           git clone git@bitbucket-git:thinkrfsoftware/s1000_backend.git
           cd s1000_backend
           git checkout ${{ github.event.inputs.releaseTag }}
-          sudo mkdir usr/include/s1000
+          sudo mkdir /usr/include/s1000
           sudo cp include/libtrf.so /usr/include/s1000/libtrf.so
           cd ..
       
