@@ -17,7 +17,7 @@ on:
 jobs:
   windows_build:
     name: "Windows Latest"
-    runs-on: ${{ matrix.os }}
+    runs-on: windows-latest
     strategy:
       fail-fast: false
       
