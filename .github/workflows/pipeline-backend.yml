@@ -78,8 +78,12 @@ jobs:
       run: |
        Invoke-WebRequest -OutFile boost.zip -Uri https://boostorg.jfrog.io/artifactory/main/release/1.80.0/source/boost_1_80_0.zip
        7z x boost.zip -o"C:\Program Files\boost\boost_1_80_0"
-       start "C:\Program Files\boost\boost_1_80_0\boost_1_80_0\bootstrap.bat"
-       start "C:\Program Files\boost\boost_1_80_0\boost_1_80_0\b2.exe"
+       
+       set p=%cd%
+       cd "C:\Program Files\boost\boost_1_80_0\boost_1_80_0"
+       .\bootstrap.bat
+       .\b2.exe
+       cd %p%
         
     
     
@@ -162,7 +166,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: s1000-agent_${{ github.event.inputs.versionNumber }}_all_deb
-          path: linux/Debian/s1000-agent*.deb  
+          path: ./linux/Debian/s1000-agent*.deb  
 
 
 
