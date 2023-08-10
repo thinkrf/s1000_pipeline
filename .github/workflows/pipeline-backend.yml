@@ -15,47 +15,16 @@ on:
         required: true
 
 jobs:
-  build:
+  windows_build:
     name: "Windows Latest"
-    runs-on: ${{ matrix.os }}
+    runs-on: windows-latest
     strategy:
       fail-fast: false
-      matrix:
-        # This line is where builds for linux can also be called to carry out. More work will need to be done in implementing this
-        os: ["windows-latest"]
       
       
-      #   artifact: "windows_msvc.7z"
-      #   build_type: "Release"
-      #   cc: "cl"
-      #   cxx: "cl"
-          # Visual Studio 2019 is specifically needed in order to build, as the location (and sometimes name) of this vital file changes between versions
-      #   environment_script: "C:/Program Files (x86)/Microsoft Visual Studio/2019/*/VC/Auxiliary/Build/vcvars64.bat"
-      #   archiver: "7z a"
-      #   generators: "Visual Studio 16 2019"
-      
-      # 
-      #     artifact: "ubuntu_gcc.7z"
-      #     build_type: "Release"
-      #     cc: "gcc"
-      #     cxx: "g++"
-      #     archiver: "7z a"
-      #     generators: "Ninja"
-      #             
-
     steps:       
 
-    # - name: Install dependencies on ubuntu
-    #   if: startsWith(matrix.config.name, 'Ubuntu_Latest_GCC')
-    #   run: |
-    #     sudo apt-get update
-    #     sudo apt-get install ninja-build cmake libwebsocketpp-dev python
-    #     ninja --version
-    #     cmake --version
-    #     gcc --version
-
-
-    - name: Install Bitbuket SSH key
+    - name: Install Bitbucket SSH key
       uses: shimataro/ssh-key-action@v2
       with:
         key: ${{ secrets.BITBUCKET_SSH_PRIVATE_KEY }}
@@ -68,29 +37,34 @@ jobs:
         if_key_exists: replace
 
 
+    - name: Cache Boost Depends
+      id: cache-boost
+      uses: actions/cache@v3
+      env:
+        cache-name: boost-for-windows
+      with:
+        path: "C:\Program Files\boost"
+        key: windows-boost-cache
+
+
+      # This step only occurs if this workflow hasn't been run in the last 7 days, and is by far the longest step - but is nessecary
+    - if: ${{ steps.cache-boost.outputs.cache-hit != 'true' }}
+      name: Get Boost
+      run: |
+       Invoke-WebRequest -OutFile boost.zip -Uri https://boostorg.jfrog.io/artifactory/main/release/1.80.0/source/boost_1_80_0.zip
+       7z x boost.zip -o"C:\Program Files\boost\boost_1_80_0"
+       
+       cd "C:\Program Files\boost\boost_1_80_0\boost_1_80_0"
+       .\bootstrap.bat
+       .\b2.exe
+       cd C:\Users\runneradmin
+
+
     - name: Inno-setup
       shell: pwsh
       run: |
         Invoke-WebRequest -OutFile inno.exe -Uri https://jrsoftware.org/download.php/is.exe
         Start-Process -Wait -FilePath $PWD\inno.exe -Argument "/silent" -PassThru
-
-
-    # - name: Install boost
-    #   uses: MarkusJx/install-boost@v2.4.1
-    #   id: install-boost
-    #   with:
-    #       # REQUIRED: Specify the required boost version
-    #       # A list of supported versions can be found here:
-    #       # https://github.com/MarkusJx/prebuilt-boost/blob/main/versions-manifest.json
-    #       boost_version: 1.80.0
-    #       # OPTIONAL: Specify a custon install location
-    #       # boost_install_dir: C:\boost
-    #       # OPTIONAL: Specify a platform version
-    #       platform_version: 2019
-    #       # OPTIONAL: Specify a toolset
-    #       toolset: msvc
-    #       cache: true
-
 
 
     - name: Retrieve Backend Repository
@@ -103,52 +77,107 @@ jobs:
       
     - name: Retrieve Installer Repository
       run: |
-        git clone git@bitbucket.org:thinkrfsoftware/s1000-installer.git      
+        git clone git@bitbucket-git:thinkrfsoftware/s1000-installer.git      
     
-    
+      
+      # The first line of this job may not be needed, but it is included nonetheless for safekeeping
     - name: Get 7-Zip
       run: |
-        Invoke-WebRequest -OutFile 7zipper.exe -Uri https://www.7-zip.org/a/7z1900-x64.msi
-        Start-Process 7zipper.exe -Wait -ArgumentList "/i $out /quiet"
-
-    
-    - name: Get Boost
-      run: |
-       Invoke-WebRequest -OutFile boost.zip -Uri https://boostorg.jfrog.io/artifactory/main/release/1.80.0/source/boost_1_80_0.zip
-       7z x boost.zip -o"C:\Program Files\boost"
-       cd "C:\Program Files\boost\boost_1_80_0"
-       .\bootstrap.bat
-       .\b2
-       cd ../..
+        Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+        choco install 7zip
+        
+        #Invoke-WebRequest -OutFile 7zip.exe -Uri https://www.7-zip.org/a/7z1900-x64.msi
+        #Start-Process 7zip.exe -Wait -ArgumentList "/i $out /quiet"
+      
+      
+    - name: Get VS Code
+      run: | 
+        choco install visualstudio2022buildtools --package-parameters "--includeRecommended"
+        choco install vscode
         
     
     
     - name: Get WebsocketPP
       run: |
+        cd s1000_backend\include
         git clone https://github.com/zaphoyd/websocketpp.git
         cd websocketpp
         mkdir build && cd build
         cmake .. -DCMAKE_INSTALL_PREFIX="C:/Program Files/websocketpp"
         cmake --build . --target install --config Release
-        cd ..\..
+        cd ..\..\..\..
         
-        
+      
     - name: Call Package Builder
       run: |
         cd s1000-installer
         python installer-builder.py ../s1000_backend $versionNumber $changelogComment
+        cd ..
+
+      # Uploads built windows installer as an artifact
+    - name: Upload Built Installer
+      uses: actions/upload-artifact@v3
+      with:
+        name: windows-installer-artifact
+        path: .\s1000-installer\windows\S1000_Agent_*        
 
 
-    # - name: Configure CMake
-    #   run: cmake . -DCMAKE_BUILD_TYPE=$BUILD_TYPE -B build
-    #   env:
-    #       BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT }}
 
-    # - name: Boost Library
-    #   shell: pwsh
-    #   run: |
-    #     Invoke-WebRequest -OutFile boost.zip -Uri https://boostorg.jfrog.io/artifactory/main/release/1.80.0/source/boost_1_80_0.zip
-    #     7z x boost.zip -oboost
-    #     cd boost/boost_1_80_0
-    #     .\bootstrap.bat
-    #     .\b2         
+
+  ubuntu_build:
+    name: "Ubuntu Build"
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
+      
+    steps:
+    
+      - name: Install dependencies on ubuntu
+        run: |
+          sudo apt update && sudo apt upgrade
+          sudo apt-get install cmake libwebsocketpp-dev libboost-all-dev gcc dpkg software-properties-common dh-make debhelper debmake
+          sudo add-apt-repository ppa:deadsnakes/ppa -y
+          sudo apt install python3.10
+          
+
+
+      - name: Install Bitbucket SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.BITBUCKET_SSH_PRIVATE_KEY }}
+          name: id_rsa_bit
+          known_hosts: ${{ secrets.KNOWN_HOSTS_BITBUCKET }}
+          config: |
+            Host bitbucket-git
+              HostName bitbucket.org
+              IdentityFile ~/.ssh/id_rsa_bit
+          if_key_exists: replace
+          
+      - name: Retrieve Backend Repository
+        run: |
+          git clone git@bitbucket-git:thinkrfsoftware/s1000_backend.git
+          cd s1000_backend
+          git checkout ${{ github.event.inputs.releaseTag }}
+          sudo mkdir /usr/include/s1000
+          sudo cp include/libtrf.so /usr/include/s1000/libtrf.so
+          cd ..
+      
+      
+      - name: Retrieve Installer Repository
+        run: |
+          git clone git@bitbucket-git:thinkrfsoftware/s1000-installer.git      
+    
+      - name: Call Builder
+        run: |
+          cd s1000-installer
+          sudo python3.10 installer-builder.py ../s1000_backend $versionNumber $changelogComment
+          cd ..
+
+      - name: Upload Built Installer
+        uses: actions/upload-artifact@v3
+        with:
+          name: debian-package-artifact
+          path: ./s1000-installer/linux/Debian/s1000-agent_*_all.deb  
+
+
+
