@@ -13,10 +13,17 @@ on:
       ChangelogComment:
         description: 'A sentence or short paragraph describing the important changes since last packaging'
         required: true
+      Stability:
+        type: choice
+        description: The stability of the built version (based on the amount of testing)
+        options:
+        - unstable
+        - testing
+        - stable
 
 jobs:
   windows_build:
-    name: "Windows Latest"
+    name: "Windows Build"
     runs-on: windows-latest
     strategy:
       fail-fast: false
