@@ -13,10 +13,17 @@ on:
       ChangelogComment:
         description: 'A sentence or short paragraph describing the important changes since last packaging'
         required: true
+      Stability:
+        type: choice
+        description: The stability of the built version (based on the amount of testing)
+        options:
+        - unstable
+        - testing
+        - stable
 
 jobs:
   windows_build:
-    name: "Windows Latest"
+    name: "Windows Build"
     runs-on: windows-latest
     strategy:
       fail-fast: false
@@ -111,7 +118,7 @@ jobs:
     - name: Call Package Builder
       run: |
         cd s1000-installer
-        python installer-builder.py ../s1000_backend $versionNumber $changelogComment
+        python installer-builder.py ../s1000_backend $versionNumber $changelogComment $Stability
         cd ..
 
       # Uploads built windows installer as an artifact
@@ -170,7 +177,7 @@ jobs:
       - name: Call Builder
         run: |
           cd s1000-installer
-          sudo python3.10 installer-builder.py ../s1000_backend $versionNumber $changelogComment
+          sudo python3.10 installer-builder.py ../s1000_backend $versionNumber $changelogComment $Stability
           cd ..
 
       - name: Upload Built Installer
