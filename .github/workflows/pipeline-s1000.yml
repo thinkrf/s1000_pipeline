@@ -56,6 +56,37 @@ jobs:
         run: | 
           choco install visualstudio2022buildtools --package-parameters "--includeRecommended"
           choco install vscode
+          
+      - name: Checkout code
+        uses: actions/checkout@v2
+        
+      - name: Install vcpkg
+        run: |
+          git clone https://github.com/microsoft/vcpkg.git
+          cd vcpkg
+          .\bootstrap-vcpkg.bat
+          ./vcpkg integrate install
+        shell: powershell
+        
+      - name: Install pthreads using vcpkg
+        run: |
+          ./vcpkg/vcpkg.exe install pthreads
+        shell: powershell
+
+      - name: Export vcpkg YAML file
+        run: |
+          ./vcpkg/vcpkg.exe export pthreads-export --raw
+        shell: powershell
+        
+      - name: Copy vcpkg YAML file to the workspace
+        run: |
+          cp pthreads-export/vcpkg-export-pthreads.cmake ${{ github.workspace }}/vcpkg-export-pthreads.cmake
+        shell: bash
+
+      - name: Display exported YAML
+        run: |
+          cat ${{ github.workspace }}/vcpkg-export-pthreads.cmake
+        shell: bash
 
       - name: Checkout code
         uses: actions/checkout@v2
