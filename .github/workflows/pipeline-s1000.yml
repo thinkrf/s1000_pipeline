@@ -89,6 +89,36 @@ jobs:
           cmake --build . --target install --config Release
           cd ..\..\..\..
 
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Download and Install pthreads
+        run: |
+          # Download the pthreads DLL from the official website
+          Invoke-WebRequest -Uri https://sourceforge.net/projects/pthreads4w/files/pthreads-w32-2-11-1-release.zip/download -OutFile pthreads.zip
+          Expand-Archive -Path pthreads.zip -DestinationPath pthreads
+          # Copy the DLL to a system directory (adjust the path as needed)
+          Copy-Item -Path "pthreads\Pre-built.2\*.*" -Destination "C:\Windows\System32\"
+        shell: powershell
+
+      - name: Install JACK
+        run: |
+          # Download the JACK installer from the official website
+          Invoke-WebRequest -Uri https://github.com/jackaudio/jack2/releases/download/v1.9.19/Jack2_v1.9.19_64_setup.exe -OutFile jack_installer.exe
+          # Run the installer silently
+          Start-Process -FilePath jack_installer.exe -ArgumentList '/S' -Wait
+          # Optional: Start the JACK server
+          Start-Process -FilePath "C:\Program Files (x86)\Jack\jackd.exe" -ArgumentList '-dnone -r44100 -p1024 -n3 -Xseq'
+        shell: powershell
+
+      - name: Verify Installation
+        run: |
+          # Check pthreads installation
+          Get-Command -Name pthreadVC3.dll
+          # Check JACK installation (verify the version)
+          "Jack Audio Connection Kit (version $(jackd --version))"
+        shell: powershell
+
       - name: Get PortAudio
         run: |
           git clone https://github.com/PortAudio/portaudio.git
@@ -114,7 +144,7 @@ jobs:
           .\bootstrap.bat
           .\b2.exe
           cd C:\Users\runneradmin
-          
+
       - name: Retrieve Frontend Repository
         run: |
           git clone git@bitbucket-git:thinkrfsoftware/s1000_frontend.git
