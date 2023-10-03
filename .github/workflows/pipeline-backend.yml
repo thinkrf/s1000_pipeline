@@ -125,7 +125,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: windows-installer-artifact
-        path: .\s1000-installer\windows\S1000_Agent_*        
+        path: .\installer\packaging\standalone\S1000_Agent_*        
 
 
 
