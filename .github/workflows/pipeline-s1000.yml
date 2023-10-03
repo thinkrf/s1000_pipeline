@@ -81,7 +81,8 @@ jobs:
         uses: jurplel/install-qt-action@v3.3.0
         with:
           version: ${{ env.QT_VERSION }}
-          target: C:/Qt
+          target: desktop
+          installDir: C:\Qt
 
       - name: Install Bitbucket SSH key
         uses: shimataro/ssh-key-action@v2
