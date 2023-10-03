@@ -57,23 +57,6 @@ jobs:
           choco install visualstudio2022buildtools --package-parameters "--includeRecommended"
           choco install vscode
 
-      - name: Cache Boost Depends
-        id: cache-boost
-        uses: actions/cache@v2
-        with:
-          path: "C:\Program Files\boost"
-          key: windows-boost-cache
-
-      - if: ${{ steps.cache-boost.outputs.cache-hit != 'true' }}
-        name: Get Boost
-        run: |
-          Invoke-WebRequest -OutFile boost.zip -Uri https://boostorg.jfrog.io/artifactory/main/release/1.80.0/source/boost_1_80_0.zip
-          7z x boost.zip -o"C:\Program Files\boost\boost_1_80_0"
-          cd "C:\Program Files\boost\boost_1_80_0\boost_1_80_0"
-          .\bootstrap.bat
-          .\b2.exe
-          cd C:\Users\runneradmin
-
       - name: Checkout code
         uses: actions/checkout@v2
         
@@ -115,6 +98,23 @@ jobs:
           cmake --build .. --target install --config Release
           cd ..\..\..\..
 
+      - name: Cache Boost Depends
+        id: cache-boost
+        uses: actions/cache@v2
+        with:
+          path: "C:\Program Files\boost"
+          key: windows-boost-cache
+
+      - if: ${{ steps.cache-boost.outputs.cache-hit != 'true' }}
+        name: Get Boost
+        run: |
+          Invoke-WebRequest -OutFile boost.zip -Uri https://boostorg.jfrog.io/artifactory/main/release/1.80.0/source/boost_1_80_0.zip
+          7z x boost.zip -o"C:\Program Files\boost\boost_1_80_0"
+          cd "C:\Program Files\boost\boost_1_80_0\boost_1_80_0"
+          .\bootstrap.bat
+          .\b2.exe
+          cd C:\Users\runneradmin
+          
       - name: Retrieve Frontend Repository
         run: |
           git clone git@bitbucket-git:thinkrfsoftware/s1000_frontend.git
