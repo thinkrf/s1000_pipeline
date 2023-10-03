@@ -32,6 +32,7 @@ env:
 jobs:
   build-and-push-image:
     runs-on: windows-latest
+    
     permissions:
       contents: read
       packages: write
@@ -73,26 +74,6 @@ jobs:
           .\b2.exe
           cd C:\Users\runneradmin
 
-      - name: Get WebsocketPP
-        run: |
-          cd s1000_backend\include
-          git clone https://github.com/zaphoyd/websocketpp.git
-          cd websocketpp
-          mkdir build && cd build
-          cmake .. -DCMAKE_INSTALL_PREFIX="C:/Program Files/websocketpp"
-          cmake --build . --target install --config Release
-          cd ..\..\..\..
-
-      - name: Get PortAudio
-        run: |
-          cd s1000_backend\include
-          git clone https://github.com/PortAudio/portaudio.git
-          cd portaudio
-          mkdir build && cd build
-          cmake .. -DCMAKE_INSTALL_PREFIX="C:/Program Files/portaudio"
-          cmake --build .. --target install --config Release
-          cd ..\..\..\..
-
       - name: Checkout code
         uses: actions/checkout@v2
         
@@ -114,22 +95,44 @@ jobs:
               IdentityFile ~/.ssh/id_rsa_bit
           if_key_exists: replace
 
+
+      - name: Get WebsocketPP
+        run: |
+          git clone https://github.com/zaphoyd/websocketpp.git
+          cd websocketpp
+          mkdir build && cd build
+          cmake .. -DCMAKE_INSTALL_PREFIX="C:/Program Files/websocketpp"
+          cmake --build . --target install --config Release
+          cd ..\..\..\..
+
+      - name: Get PortAudio
+        run: |
+          git clone https://github.com/PortAudio/portaudio.git
+          cd portaudio
+          mkdir build && cd build
+          cmake .. -DCMAKE_INSTALL_PREFIX="C:/Program Files/portaudio"
+          cmake --build .. --target install --config Release
+          cd ..\..\..\..
+
       - name: Retrieve Frontend Repository
         run: |
           git clone git@bitbucket-git:thinkrfsoftware/s1000_frontend.git
           cd s1000_frontend
           git checkout ${{ github.event.inputs.FrontendReleaseTag }}
 
-      - name: Retrieve Backend Repository
+      - name: Retrieve Backend Repository and build
         run: |
           git clone git@bitbucket-git:thinkrfsoftware/s1000_backend.git
           cd s1000_backend
           git checkout ${{ github.event.inputs.BackendReleaseTag }}
+          cmake -DCMAKE_PREFIX_PATH="C:/Qt/6.5.2/msvc2019_64;C:/Program Files/portaudio/cmake/portaudio;C:/Program Files/websocketpp" -DBOOST_ROOT="C:/Program Files/boost/boost_1_80_0/boost_1_80_0" -DPORTAUDIO_ROOT="C:/
+          cmake --build . --config Release
           cd ..
 
       - name: Retrieve Installer Repository
         run: |
           git clone git@bitbucket-git:thinkrfsoftware/s1000-installer.git     
+
 
       - name: Inno-setup
         shell: pwsh
