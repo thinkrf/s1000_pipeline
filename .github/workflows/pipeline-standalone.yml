@@ -1,0 +1,209 @@
+name: S1000 Standalone Application Pipeline
+
+on:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+    inputs:        
+      InstallerType: 
+        description: 'standalone uses electron app while web uses browser'     
+        required: true
+        options: 
+          - web
+          - standalone
+      FrontendReleaseTag:
+        description: 'The s1000 frontend tag that you would like to create a release. Ex: 1.3.0'     
+        required: true  
+      BackendReleaseTag:
+        description: 'The s1000 backend tag that you would like to create a release. Ex: 1.3.0'     
+        required: true    
+      ChangelogComment:
+        description: 'A sentence or short paragraph describing the important changes since last packaging'
+        required: true
+      Stability:
+        type: choice
+        description: The stability of the built version (based on the amount of testing)
+        options:
+        - unstable
+        - testing
+        - stable
+env:
+    QT_VERSION: '6.5.2'
+
+jobs:
+  build-and-push-image:
+    runs-on: windows-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Print Release Version
+        run: |
+          echo "Backend Release ${{ github.event.inputs.BackendReleaseTag }}"
+          echo "Frontend Release ${{ github.event.inputs.FrontendReleaseTag }}"
+    
+      - name: Set Port
+        run: |
+          echo "Setting port environment variable"
+          echo "port: $APP_Port" >> $GITHUB_ENV
+
+        
+      # The first line of this job may not be needed, but it is included nonetheless for safekeeping
+      - name: Get 7-Zip
+        run: |
+          Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+          choco install 7zip
+          
+          #Invoke-WebRequest -OutFile 7zip.exe -Uri https://www.7-zip.org/a/7z1900-x64.msi
+          #Start-Process 7zip.exe -Wait -ArgumentList "/i $out /quiet"
+        
+        
+      - name: Get VS Code
+        run: | 
+          choco install visualstudio2022buildtools --package-parameters "--includeRecommended"
+          choco install vscode
+        
+      # install boost
+      - name: Cache Boost Depends
+        id: cache-boost
+        uses: actions/cache@v3
+        env:
+          cache-name: boost-for-windows
+        with:
+          path: "C:\Program Files\boost"
+          key: windows-boost-cache
+
+
+        # This step only occurs if this workflow hasn't been run in the last 7 days, and is by far the longest step - but is nessecary
+      - if: ${{ steps.cache-boost.outputs.cache-hit != 'true' }}
+        name: Get Boost
+        run: |
+          Invoke-WebRequest -OutFile boost.zip -Uri https://boostorg.jfrog.io/artifactory/main/release/1.80.0/source/boost_1_80_0.zip
+          7z x boost.zip -o"C:\Program Files\boost\boost_1_80_0"
+          
+          cd "C:\Program Files\boost\boost_1_80_0\boost_1_80_0"
+          .\bootstrap.bat
+          .\b2.exe
+          cd C:\Users\runneradmin
+
+    
+      #install websocketpp
+      - name: Get WebsocketPP
+        run: |
+          cd s1000_backend\include
+          git clone https://github.com/zaphoyd/websocketpp.git
+          cd websocketpp
+          mkdir build && cd build
+          cmake .. -DCMAKE_INSTALL_PREFIX="C:/Program Files/websocketpp"
+          cmake --build . --target install --config Release
+          cd ..\..\..\..
+
+      #install portaudio
+      - name: Get portaudio
+        run: |
+          cd s1000_backend\include
+          git clone https://github.com/PortAudio/portaudio.git
+          cd portaudio
+          mkdir build && cd build
+          cmake .. -DCMAKE_INSTALL_PREFIX="C:/Program Files/portaudio"
+          cmake --build .. --target install --config Release
+          cd ..\..\..\..
+      
+      #install qt
+      - name: Checkout code
+        uses: actions/checkout@v2
+        
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v3.3.0
+        with:
+          version: ${{ env.QT_VERSION }}
+          target: C:\Qt # Note that the path separator should be a forward slash (/) on GitHub Actions, even if you're installing on Windowsonline.exe
+
+      - name: Install Bitbuket SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.BITBUCKET_SSH_PRIVATE_KEY }}
+          name: id_rsa_bit
+          known_hosts: ${{ secrets.KNOWN_HOSTS_BITBUCKET }}
+          config: |
+            Host bitbucket-git
+              HostName bitbucket.org
+              IdentityFile ~/.ssh/id_rsa_bit
+          if_key_exists: replace
+
+      - name: Install Bitbuket SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.BITBUCKET_SSH_PRIVATE_KEY }}
+          name: id_rsa_bit
+          known_hosts: ${{ secrets.KNOWN_HOSTS_BITBUCKET }}
+          config: |
+            Host bitbucket-git
+              HostName bitbucket.org
+              IdentityFile ~/.ssh/id_rsa_bit
+          if_key_exists: replace
+
+      - name: Retrieve Frontend Repository
+        run: |
+          git clone git@bitbucket-git:thinkrfsoftware/s1000_frontend.git
+          cd s1000_frontend
+          git checkout ${{ github.event.inputs.releaseTag }}
+
+      - name: Retrieve Backend Repository
+        run: |
+          git clone git@bitbucket-git:thinkrfsoftware/s1000_backend.git
+          cd s1000_backend
+          git checkout ${{ github.event.inputs.releaseTag }}
+          cd ..
+        
+      - name: Retrieve Installer Repository
+        run: |
+          git clone git@bitbucket-git:thinkrfsoftware/s1000-installer.git     
+
+       
+      #run iss
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Inno Setup
+        uses: jgsoft/innosetup-action@v1
+        with:
+          innosetup-version: '6.2.0'
+
+      - name: Determine Inno Setup Script Path
+        id: script-path
+        run: |
+          if [ "$InstallerType" == "browser" ]; then
+            echo "::set-output name=path::installer/packaging/web/inno-setup.iss"
+          elif [ "$InstallerType" == "standalone" ]; then
+            echo "::set-output name=path::installer/packaging/standalone/inno-setup.iss"
+          else
+            echo "Invalid installer_type specified."
+            exit 1
+          fi
+
+      - name: Build Installer
+        run: |
+          # Navigate to the dynamically determined directory where your Inno Setup script is located
+          cd ${{ steps.script-path.outputs.path }}
+          
+          # Build the installer using the provided .iss script
+          iscc /Q /O"$OUTPUT_DIRECTORY" "inno-setup.iss"
+
+      - name: Upload Installer
+        uses: actions/upload-artifact@v2
+        with:
+          name: installer
+          path: $OUTPUT_DIRECTORY
+    #===============================================================
+    # echo "echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} > ~/docker_token.txt; cat ~/docker_token.txt | docker login --username ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin; rm -f ~/docker_token.txt; docker stop $(docker ps -aq); sleep 5; docker rm $(docker ps -aq); sleep 5; sudo systemctl stop docker; sleep 5; sudo systemctl start docker; sleep 5; docker pull thinkrf/s1000_frontend:${{ github.event.inputs.releaseTag }}; sleep 3; docker run --name s1000_${{ github.event.inputs.appEnv }}-${{ github.event.inputs.releaseTag }} -d -p ${{ env.APP_PORT }}:3000 thinkrf/s1000_frontend:${{ github.event.inputs.releaseTag }}" | ssh ubuntu@aws-ec2 /bin/bash
+
+    # - name: Deploy to AWS Elastic Beanstalk
+    #   uses: einaregilsson/beanstalk-deploy@v21
+    #   with:
+    #     aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+    #     aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    #     application_name: ${{ env.APP_NAME }}
+    #     environment_name: ${{ env.APP_NAME }}-env
+    #     version_label: ${{ github.event.inputs.releaseTag }}
+    #     region: us-east-2
+    #     deployment_package: s1000_frontend/s1000-${{ github.event.inputs.appEnv }}.zip    

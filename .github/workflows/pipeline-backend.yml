@@ -102,8 +102,7 @@ jobs:
         choco install visualstudio2022buildtools --package-parameters "--includeRecommended"
         choco install vscode
         
-    
-    
+  
     - name: Get WebsocketPP
       run: |
         cd s1000_backend\include
