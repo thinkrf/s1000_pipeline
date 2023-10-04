@@ -57,6 +57,21 @@ jobs:
           choco install visualstudio2022buildtools --package-parameters "--includeRecommended"
           choco install vscode
 
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up MSYS2 environment
+        run: |
+          choco install msys2 --params '"/NoUpdate""'
+          refreshenv
+        shell: powershell
+
+      - name: Install GnuWin32 regex package
+        run: |
+          choco install gnuwin32
+        shell: bash
+
+
       - name: Check out code
         uses: actions/checkout@v2
 
@@ -68,7 +83,7 @@ jobs:
           cmake .. -DCMAKE_INSTALL_PREFIX="C:/Program Files/portaudio" -DCMAKE_INCLUDE_PATH="../include/"
           cmake --build .. --target install --config Release
           cd ..\..\..\..
-          
+
       - name: Checkout code
         uses: actions/checkout@v2
         
