@@ -72,10 +72,13 @@ jobs:
 
       - name: Install  PortAudio
         run: |
-          echo "Current directory is: $(pwd)"
           cd portaudio
           cd build
+          echo "Current directory is: $(pwd)"
+
           cmake --build .. --target install --config Release
+          cmake --build . --target install --config Release
+
           cd ..\..\..\..
     
       - name: Checkout code
