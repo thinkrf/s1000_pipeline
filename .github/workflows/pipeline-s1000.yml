@@ -76,7 +76,6 @@ jobs:
           cd build
           echo "Current directory is: $(pwd)"
           cmake --build . --target install --config Release
-
           cd ..\..\..\..
     
       - name: Checkout code
