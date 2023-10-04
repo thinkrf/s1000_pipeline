@@ -168,7 +168,6 @@ jobs:
           if ($Env:InstallerType -eq "standalone") {
             npx electron-packager . --overwrite --arch x64 --platform win32 --icon thinkrfLogo.ico
           }
-          fi
 
       - name: Retrieve Backend Repository and build
         run: |
@@ -210,8 +209,9 @@ jobs:
           # Build the installer using the provided .iss script
           iscc /Q /O"$OUTPUT_DIRECTORY" "inno-setup.iss"
 
+        # Uploads built windows installer as an artifact
       - name: Upload Installer
         uses: actions/upload-artifact@v2
         with:
-          name: installer
-          path: $OUTPUT_DIRECTORY
+          name: windows-installer-artifact
+          path: $OUTPUT_DIRECTORY/output/*
