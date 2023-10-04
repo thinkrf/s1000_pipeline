@@ -70,7 +70,8 @@ jobs:
           cmake .. -DCMAKE_INSTALL_PREFIX="C:/Program Files/portaudio"
 
 
-      - name: Install Build PortAudio
+      - name: Install  PortAudio
+        run: |
           cmake --build .. --target install --config Release
           cd ..\..\..\..
     
