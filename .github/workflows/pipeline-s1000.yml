@@ -162,6 +162,7 @@ jobs:
           git checkout ${{ github.event.inputs.FrontendReleaseTag }}
           if ($Env:InstallerType -eq "standalone") {
             npx electron-packager . --overwrite --arch x64 --platform win32 --icon thinkrfLogo.ico
+          }
           fi
 
       - name: Retrieve Backend Repository and build
