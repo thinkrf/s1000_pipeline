@@ -159,6 +159,15 @@ jobs:
           .\b2.exe
           cd C:\Users\runneradmin
 
+      - name: recache Boost Depends
+        id: cache-boost
+        uses: actions/cache@v3
+        env:
+          cache-name: boost-for-windows
+        with:
+          path: "C:\Program Files\boost"
+          key: windows-boost-cache
+
       - name: Retrieve Frontend Repository 
         run: |
           git clone git@bitbucket-git:thinkrfsoftware/s1000_frontend.git
