@@ -137,7 +137,7 @@ jobs:
         env:
           cache-name: boost-for-windows
         with:
-          path: "C:\Program Files\boost"
+          path: "C:/Program Files/boost"
           key: windows-boost-cache
 
 
@@ -174,7 +174,7 @@ jobs:
           cd build
           cmake .. -DCMAKE_INSTALL_PREFIX="C:/Program Files/websocketpp"
           cmake --build . --target install --config Release
-          cd ..
+          cd ../../..
           cmake -DCMAKE_PREFIX_PATH="C:/Qt/6.5.2/msvc2019_64;C:/Program Files/portaudio/cmake/portaudio" -DBOOST_ROOT="C:/Program Files/boost/boost_1_80_0/boost_1_80_0" -DPORTAUDIO_ROOT="C:/Program Files/portaudio"
           cmake --build . --config Release
           cd ..
@@ -193,14 +193,19 @@ jobs:
       - name: Determine Inno Setup Script Path
         id: script-path
         run: |
-          if [ "${{ github.event.inputs.InstallerType }}" == "web" ]; then
+          if ($Env:InstallerType -eq "web") {
+          {
             echo "::set-output name=path::installer/packaging/windows/web/inno-setup.iss"
-          elif [ "${{ github.event.inputs.InstallerType }}" == "standalone" ]; then
+          }
+          if ($Env:InstallerType -eq "standalone") {
+          {
             echo "::set-output name=path::installer/packaging/windows/standalone/inno-setup.iss"
+          }
           else
+          {
             echo "Invalid InstallerType specified."
             exit 1
-          fi
+          }
 
       - name: Build Installer
         run: |
