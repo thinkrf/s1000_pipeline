@@ -60,26 +60,47 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set up MSYS2 environment
+      - name: Install MSYS2
         run: |
           choco install msys2 --params '"/NoUpdate""'
           refreshenv
         shell: powershell
 
-      - name: Install GnuWin32 regex package
+      - name: Update MSYS2
         run: |
-          choco install gnuwin32
+          pacman -Syu --noconfirm
         shell: bash
 
+      - name: Install MSYS2 Development Tools
+        run: |
+          pacman -S --noconfirm base-devel git
+        shell: bash
 
-      - name: Check out code
-        uses: actions/checkout@v2
+      - name: Install JACK Dependencies
+        run: |
+          pacman -S --noconfirm mingw-w64-x86_64-gcc mingw-w64-x86_64-pkg-config
+          pacman -S --noconfirm mingw-w64-x86_64-portaudio
+        shell: bash
+
+      - name: Clone JACK Repository
+        run: |
+          git clone https://github.com/jackaudio/jack2.git
+        shell: bash
+
+      - name: Build and Install JACK
+        run: |
+          cd jack2
+          ./waf configure
+          ./waf build
+          ./waf install
+        shell: bash
 
       - name: Get PortAudio
         run: |
           git clone https://github.com/PortAudio/portaudio.git
           cd portaudio
-          mkdir build && cd build
+          mkdir build 
+          cd build
           cmake .. -DCMAKE_INSTALL_PREFIX="C:/Program Files/portaudio" -DCMAKE_INCLUDE_PATH="../include/"
           cmake --build .. --target install --config Release
           cd ..\..\..\..
