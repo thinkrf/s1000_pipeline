@@ -139,23 +139,25 @@ jobs:
           cd ..\..\..\..
 
 
+      - name: Cache Boost Depends
+        id: cache-boost
+        uses: actions/cache@v3
+        env:
+          cache-name: boost-for-windows
+        with:
+          path: "C:\Program Files\boost"
+          key: windows-boost-cache
 
+        # This step only occurs if this workflow hasn't been run in the last 7 days, and is by far the longest step - but is nessecary
       - if: ${{ steps.cache-boost.outputs.cache-hit != 'true' }}
         name: Get Boost
         run: |
           Invoke-WebRequest -OutFile boost.zip -Uri https://boostorg.jfrog.io/artifactory/main/release/1.80.0/source/boost_1_80_0.zip
-          7z x boost.zip -o"C:\Program Files\boost\boost_1_80_0"
+          7z x boost.zip -o"C:\Program Files\boost\boost_1_80_0"   
           cd "C:\Program Files\boost\boost_1_80_0\boost_1_80_0"
           .\bootstrap.bat
           .\b2.exe
           cd C:\Users\runneradmin
-
-      - name: Cache Boost Depends
-        id: cache-boost
-        uses: actions/cache@v2
-        with:
-          path: "C:/Program Files/boost"
-          key: windows-boost-cache
 
       - name: Retrieve Frontend Repository 
         run: |
