@@ -72,7 +72,8 @@ jobs:
 
       - name: Install  PortAudio
         run: |
-          cmake --build .. --target install --config Release
+          echo "Current directory is: $(pwd)"
+          cmake --build . --target install --config Release
           cd ..\..\..\..
     
       - name: Checkout code
