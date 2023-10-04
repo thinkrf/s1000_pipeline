@@ -60,17 +60,20 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Get PortAudio
+      - name: Build PortAudio
         continue-on-error: true
         run: |
           git clone https://github.com/PortAudio/portaudio.git
           cd portaudio
           mkdir build 
           cd build
-          cmake .. -DCMAKE_INSTALL_PREFIX="C:/Program Files/portaudio" -DCMAKE_INCLUDE_PATH="../include/"
+          cmake .. -DCMAKE_INSTALL_PREFIX="C:/Program Files/portaudio"
+
+
+      - name: Install Build PortAudio
           cmake --build .. --target install --config Release
           cd ..\..\..\..
-          
+    
       - name: Checkout code
         uses: actions/checkout@v2
         
