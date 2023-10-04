@@ -75,8 +75,6 @@ jobs:
           cd portaudio
           cd build
           echo "Current directory is: $(pwd)"
-
-          cmake --build .. --target install --config Release
           cmake --build . --target install --config Release
 
           cd ..\..\..\..
@@ -90,6 +88,33 @@ jobs:
           version: ${{ env.QT_VERSION }}
           target: desktop
           installDir: C:\Qt
+
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+
+      - name: Install npm dependencies for frontend
+        run: |
+          npm install next react react-dom
+          npm install react-spinners
+          npm install react-bootstrap bootstrap
+          npm install recoil
+          npm install react-icons
+          npm install react-color
+          npm install dom-to-image-more
+          npm install react-widgets
+          npm install scichart
+          npm install --save-dev copy-webpack-plugin
+          npm install -g copy-files-from-to
+          npm install resolve-from
+          npm install -g async
+          npm install --save-dev eslint
+          npm install electron
+          npm install --save-dev electron-packager
+        shell: bash
 
       - name: Install Bitbucket SSH key
         uses: shimataro/ssh-key-action@v2
@@ -130,11 +155,14 @@ jobs:
           .\b2.exe
           cd C:\Users\runneradmin
 
-      - name: Retrieve Frontend Repository
+      - name: Retrieve Frontend Repository 
         run: |
           git clone git@bitbucket-git:thinkrfsoftware/s1000_frontend.git
           cd s1000_frontend
           git checkout ${{ github.event.inputs.FrontendReleaseTag }}
+          if [ "${{ github.event.inputs.InstallerType }}" == "standalone" ]; then
+            npx electron-packager . --overwrite --arch x64 --platform win32 --icon thinkrfLogo
+
 
       - name: Retrieve Backend Repository and build
         run: |
