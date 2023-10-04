@@ -138,12 +138,7 @@ jobs:
           cmake --build . --target install --config Release
           cd ..\..\..\..
 
-      - name: Cache Boost Depends
-        id: cache-boost
-        uses: actions/cache@v2
-        with:
-          path: "C:\Program Files\boost"
-          key: windows-boost-cache
+
 
       - if: ${{ steps.cache-boost.outputs.cache-hit != 'true' }}
         name: Get Boost
@@ -154,6 +149,13 @@ jobs:
           .\bootstrap.bat
           .\b2.exe
           cd C:\Users\runneradmin
+
+      - name: Cache Boost Depends
+        id: cache-boost
+        uses: actions/cache@v2
+        with:
+          path: "C:/Program Files/boost"
+          key: windows-boost-cache
 
       - name: Retrieve Frontend Repository 
         run: |
