@@ -8,7 +8,7 @@ on:
         description: 'The s1000 frontend tag that you would like to create a release. Ex: 1.3.0'     
         required: true    
       appEnv:
-        description: 'App Environment: options (test, prod)'     
+        description: 'App Environment: options (test, prod, dev or localhost)'     
         required: True        
 
 jobs:

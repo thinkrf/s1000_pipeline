@@ -160,7 +160,7 @@ jobs:
           git clone git@bitbucket-git:thinkrfsoftware/s1000_frontend.git
           cd s1000_frontend
           git checkout ${{ github.event.inputs.FrontendReleaseTag }}
-          if [ "${{ inputs.InstallerType }}" == "standalone" ]; then
+          if ($Env:InstallerType -eq "standalone") {
             npx electron-packager . --overwrite --arch x64 --platform win32 --icon thinkrfLogo.ico
           fi
 
