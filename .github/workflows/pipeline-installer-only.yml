@@ -59,7 +59,7 @@ jobs:
       - name: Inno-setup
         shell: pwsh
         run: |
-          Invoke-WebRequest -OutFile iscc.exe -Uri "https://www.jrsoftware.org/download/is.exe"
+          Invoke-WebRequest -OutFile iscc.exe -Uri "https://www.jrsoftware.org/download/iscc.exe"
           Start-Process -Wait -FilePath $PWD\inno.exe -Argument "/silent" -PassThru
           
 
