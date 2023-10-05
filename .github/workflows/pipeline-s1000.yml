@@ -121,8 +121,6 @@ jobs:
           if_key_exists: replace
 
 
-
-
       - name: Cache Boost Depends
         id: cache-boost
         uses: actions/cache@v3
@@ -131,7 +129,6 @@ jobs:
         with:
           path: "C:/Program Files/boost"
           key: windows-boost-cache
-
 
         # This step only occurs if this workflow hasn't been run in the last 7 days, and is by far the longest step - but is nessecary
       - if: ${{ steps.cache-boost.outputs.cache-hit != 'true' }}
@@ -149,10 +146,11 @@ jobs:
           git clone git@bitbucket-git:thinkrfsoftware/s1000_frontend.git
           cd s1000_frontend
           git checkout ${{ github.event.inputs.FrontendReleaseTag }}
-          if [[ "${{ github.event.inputs.InstallerType }}" == "standalone" ]]; then
+          if ($env:INPUT_InstallerType -eq "standalone") {
             npx electron-packager . --overwrite --arch x64 --platform win32 --icon thinkrfLogo.ico
             echo "created electron app."            
-          fi
+          }
+          cd ..
 
       - name: Retrieve Backend Repository and build
         run: |
@@ -172,36 +170,20 @@ jobs:
           cmake --build . --config Release
           cd ..
 
-      - name: Retrieve Installer Repository
+      - name: Retrieve Installer Repository and run installer
         run: |
           git clone git@bitbucket-git:thinkrfsoftware/s1000-installer.git     
+          if ($env:INPUT_InstallerType -eq "standalone") {
+            cd installer/packaging/standalone/
+          }
+            if ($env:INPUT_InstallerType -eq "web") {
+              cd installer/packaging/web/
+          }
+          # Run the Inno Setup Compiler and capture its output directory
+          $output_directory = iscc /q inno-setup.iss
 
-
-      - name: Inno-setup
-        shell: pwsh
-        run: |
-          Invoke-WebRequest -OutFile inno.exe -Uri https://jrsoftware.org/download.php/is.exe
-          Start-Process -Wait -FilePath $PWD\inno.exe -Argument "/silent" -PassThru
-
-      - name: Determine Inno Setup Script Path
-        id: script-path
-        run: |
-          if [[ "${{ github.event.inputs.InstallerType }}" == "standalone" ]]; then
-            echo "::set-output name=path::installer/packaging/windows/standalone/inno-setup.iss"
-          elseif [[ "${{ github.event.inputs.InstallerType }}" == "web" ]]; then
-            echo "::set-output name=path::installer/packaging/windows/web/inno-setup.iss"
-          else 
-            echo "Invalid InstallerType specified."
-            exit 1
-          fi
-
-      - name: Build Installer
-        run: |
-          # Navigate to the dynamically determined directory where your Inno Setup script is located
-          cd ${{ steps.script-path.outputs.path }}
-          dir ${{ steps.script-path.outputs.path }}
-          # Build the installer using the provided .iss script
-          iscc /Q /O"$OUTPUT_DIRECTORY" "inno-setup.iss"
+          # Set the OUTPUT_DIRECTORY as a GitHub Actions environment variable
+          $env:OUTPUT_DIRECTORY = $output_directory
 
         # Uploads built windows installer as an artifact
       - name: Upload Installer

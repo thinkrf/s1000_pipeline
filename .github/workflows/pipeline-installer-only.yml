@@ -85,10 +85,11 @@ jobs:
             if ($env:INPUT_InstallerType -eq "web") {
               cd installer/packaging/web/
           }
-          output_directory=$(iscc /q inno-setup.iss)
+          # Run the Inno Setup Compiler and capture its output directory
+          $output_directory = iscc /q inno-setup.iss
 
-          # Set the OUTPUT_DIRECTORY variable to the captured directory
-          echo "OUTPUT_DIRECTORY=$OUTPUT_DIRECTORY" >> $GITHUB_ENV
+          # Set the OUTPUT_DIRECTORY as a GitHub Actions environment variable
+          $env:OUTPUT_DIRECTORY = $output_directory
 
         # Uploads built windows installer as an artifact
       - name: Upload Installer
