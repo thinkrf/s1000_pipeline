@@ -185,16 +185,13 @@ jobs:
       - name: Determine Inno Setup Script Path
         id: script-path
         run: |
-          if ($Env:InstallerType -eq "web") 
-          {
+          if ($Env:InstallerType -eq "web") {
             echo "::set-output name=path::installer/packaging/windows/web/inno-setup.iss"
           }
-          else if ($Env:InstallerType -eq "standalone")
-          {
+          elseif ($Env:InstallerType -eq "standalone") {
             echo "::set-output name=path::installer/packaging/windows/standalone/inno-setup.iss"
           }
-          else
-          {
+          else {
             echo "Invalid InstallerType specified."
             exit 1
           }
