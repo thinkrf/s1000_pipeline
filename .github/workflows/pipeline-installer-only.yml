@@ -76,7 +76,7 @@ jobs:
           if (-Not $path) {
             Write-Host "Inno Setup Compiler is not found in the expected locations. Please check the installation."
           }
-            
+   
           
       - name: Retrieve Frontend Repository 
         run: |
@@ -97,12 +97,12 @@ jobs:
           dir
           if ($env:INPUT_InstallerType -eq "standalone") {
             cd installer/packaging/standalone
-            $output_directory =  $path ./iscc.exe /q installer/packaging/standalone/inno-setup.iss
+            $output_directory =  $path ./ISCC.exe /q installer/packaging/standalone/inno-setup.iss
 
           }
           if ($env:INPUT_InstallerType -eq "web") {
             cd installer/packaging/web
-            $output_directory =  $path  ./iscc.exe /q installer/packaging/web/inno-setup.iss
+            $output_directory =  $path  ./ISCC.exe /q installer/packaging/web/inno-setup.iss
           }
 
           $env:OUTPUT_DIRECTORY = $output_directory
