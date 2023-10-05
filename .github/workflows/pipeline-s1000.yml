@@ -7,8 +7,8 @@ on:
         type: choice
         description: 'The standalone mode creates an electron frontend execulatable and backend agent. The web mode, creates a backend agent only which launches a web browser'     
         options: 
-            - web
-            - standalone
+            - 'web'
+            - 'standalone'
       FrontendReleaseTag:
         description: 'The S1000 frontend tag that you would like to create a release. Ex: 1.3.0'     
         required: true  
@@ -149,7 +149,7 @@ jobs:
           git clone git@bitbucket-git:thinkrfsoftware/s1000_frontend.git
           cd s1000_frontend
           git checkout ${{ github.event.inputs.FrontendReleaseTag }}
-          if (${{ github.event.inputs.InstallerType }} -eq standalone) {
+          if (${{ github.event.inputs.InstallerType }} -eq 'standalone') {
             npx electron-packager . --overwrite --arch x64 --platform win32 --icon thinkrfLogo.ico
             echo "created electron app."            
           }
@@ -186,10 +186,10 @@ jobs:
       - name: Determine Inno Setup Script Path
         id: script-path
         run: |
-          if [[ "${{ github.event.inputs.InstallerType }}" == standalone ]]; then
+          if [[ "${{ github.event.inputs.InstallerType }}" == 'standalone' ]]; then
             echo "::set-output name=path::installer/packaging/windows/standalone/inno-setup.iss"
           
-          elseif [[ "${{ github.event.inputs.InstallerType }}" == web ]]; then
+          elseif [[ "${{ github.event.inputs.InstallerType }}" == 'web' ]]; then
             echo "::set-output name=path::installer/packaging/windows/web/inno-setup.iss"
           else 
             echo "Invalid InstallerType specified."
