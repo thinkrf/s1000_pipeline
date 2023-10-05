@@ -82,7 +82,7 @@ jobs:
           if ($env:INPUT_InstallerType -eq "standalone") {
             cd installer/packaging/standalone/
           }
-            if ($env:INPUT_InstallerType -eq "web") {
+          if ($env:INPUT_InstallerType -eq "web") {
               cd installer/packaging/web/
           }
           # Run the Inno Setup Compiler and capture its output directory
