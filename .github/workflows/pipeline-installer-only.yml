@@ -55,14 +55,29 @@ jobs:
               IdentityFile ~/.ssh/id_rsa_bit
           if_key_exists: replace
 
-
       - name: Inno-setup
         shell: pwsh
         run: |
-          Invoke-WebRequest -OutFile iscc.exe -Uri "https://www.jrsoftware.org/download/iscc.exe"
+          Invoke-WebRequest -OutFile inno.exe -Uri https://jrsoftware.org/download.php/is.exe
           Start-Process -Wait -FilePath $PWD\inno.exe -Argument "/silent" -PassThru
+      
+      - name: Check Inno Setup Compiler Installation
+        run: |
+          $isccPaths = @(
+            "C:\Program Files (x86)\Inno Setup 6\ISCC.exe",
+            "C:\Program Files\Inno Setup 6\ISCC.exe"
+          )
+          foreach ($path in $isccPaths) {
+            if (Test-Path $path) {
+              Write-Host "Inno Setup Compiler is installed at $path"
+              break
+            }
+          }
+          if (-Not $path) {
+            Write-Host "Inno Setup Compiler is not found in the expected locations. Please check the installation."
+          }
+            
           
-
       - name: Retrieve Frontend Repository 
         run: |
           git clone git@bitbucket-git:thinkrfsoftware/s1000_frontend.git
@@ -81,12 +96,16 @@ jobs:
           git clone git@bitbucket-git:thinkrfsoftware/installer.git
           dir
           if ($env:INPUT_InstallerType -eq "standalone") {
+            cd installer/packaging/standalone
+            $path .\inno-setup.iss
             $output_directory = ./iscc.exe /q installer/packaging/standalone/inno-setup.iss
 
           }
           if ($env:INPUT_InstallerType -eq "web") {
-             $output_directory = ./iscc.exe /q installer/packaging/web/inno-setup.iss
+            cd installer/packaging/web
+            $output_directory = ./iscc.exe /q installer/packaging/web/inno-setup.iss
           }
+          
           $env:OUTPUT_DIRECTORY = $output_directory
 
         # Uploads built windows installer as an artifact
