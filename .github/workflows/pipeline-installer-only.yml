@@ -68,6 +68,7 @@ jobs:
           git clone git@bitbucket-git:thinkrfsoftware/s1000_frontend.git
           cd s1000_frontend
           git checkout ${{ github.event.inputs.FrontendReleaseTag }}          
+          cd ..
             
 
       - name: Retrieve Backend Repository and build
@@ -75,6 +76,7 @@ jobs:
           git clone git@bitbucket-git:thinkrfsoftware/s1000_backend.git
           cd s1000_backend
           git checkout ${{ github.event.inputs.BackendReleaseTag }}
+          cd ..
 
       - name: Retrieve Installer Repository and run installer
         run: |
