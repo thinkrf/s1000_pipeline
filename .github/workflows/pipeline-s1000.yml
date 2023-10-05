@@ -149,10 +149,10 @@ jobs:
           git clone git@bitbucket-git:thinkrfsoftware/s1000_frontend.git
           cd s1000_frontend
           git checkout ${{ github.event.inputs.FrontendReleaseTag }}
-          if [[ "${{ github.event.inputs.InstallerType }}" == "standalone" ]]; then
+          if (${{ github.event.inputs.InstallerType }} -eq standalone) {
             npx electron-packager . --overwrite --arch x64 --platform win32 --icon thinkrfLogo.ico
             echo "created electron app."            
-          fi 
+          }
 
       - name: Retrieve Backend Repository and build
         run: |
@@ -186,14 +186,15 @@ jobs:
       - name: Determine Inno Setup Script Path
         id: script-path
         run: |
-          if [[ "${{ github.event.inputs.InstallerType }}" == "standalone" ]]; then
+          if [[ "${{ github.event.inputs.InstallerType }}" == standalone ]]; then
             echo "::set-output name=path::installer/packaging/windows/standalone/inno-setup.iss"
-          elif [[ "${{ github.event.inputs.InstallerType }}" == "web" ]]; then
+          
+          elseif [[ "${{ github.event.inputs.InstallerType }}" == web ]]; then
             echo "::set-output name=path::installer/packaging/windows/web/inno-setup.iss"
           else 
             echo "Invalid InstallerType specified."
             exit 1
-          fi
+          }
 
       - name: Build Installer
         run: |
