@@ -60,7 +60,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Build PortAudio
+      - name: Build and install PortAudio
         continue-on-error: true
         run: |
           git clone https://github.com/PortAudio/portaudio.git
@@ -68,13 +68,6 @@ jobs:
           mkdir build 
           cd build
           cmake .. -DCMAKE_INSTALL_PREFIX="C:/Program Files/portaudio"
-
-
-      - name: Install  PortAudio
-        run: |
-          cd portaudio
-          cd build
-          echo "Current directory is: $(pwd)"
           cmake --build . --target install --config Release
           cd ..\..\..\..
     
@@ -192,11 +185,11 @@ jobs:
       - name: Determine Inno Setup Script Path
         id: script-path
         run: |
-          if ($Env:InstallerType -eq "web") {
+          if ($Env:InstallerType -eq "web") 
           {
             echo "::set-output name=path::installer/packaging/windows/web/inno-setup.iss"
           }
-          if ($Env:InstallerType -eq "standalone") {
+          if ($Env:InstallerType -eq "standalone")
           {
             echo "::set-output name=path::installer/packaging/windows/standalone/inno-setup.iss"
           }
