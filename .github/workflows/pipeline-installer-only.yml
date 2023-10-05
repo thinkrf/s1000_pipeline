@@ -78,7 +78,7 @@ jobs:
 
       - name: Retrieve Installer Repository and run installer
         run: |
-          git clone git@bitbucket-git:thinkrfsoftware/s1000-installer.git     
+          git clone git@bitbucket-git:thinkrfsoftware/installer.git
           if ($env:INPUT_InstallerType -eq "standalone") {
             cd installer/packaging/standalone/
           }
