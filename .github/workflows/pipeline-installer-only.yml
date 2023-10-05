@@ -83,17 +83,14 @@ jobs:
       - name: Determine Inno Setup Script Path
         id: script-path
         run: |
-          if (${{ github.event.inputs.InstallerType }} -eq "standalone") {
+          if [[ "${{ github.event.inputs.InstallerType }}" == "standalone" ]]; then
             echo "::set-output name=path::installer/packaging/windows/standalone/inno-setup.iss"
-          }
-          elseif (${{ github.event.inputs.InstallerType }} -eq "web") {
+          elif [[ "${{ github.event.inputs.InstallerType }}" == "web" ]]; then
             echo "::set-output name=path::installer/packaging/windows/web/inno-setup.iss"
-          }
           else 
-          {
             echo "Invalid InstallerType specified."
             exit 1
-          }
+          fi
 
       - name: Build Installer
         run: |
