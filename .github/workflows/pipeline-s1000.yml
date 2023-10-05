@@ -202,7 +202,7 @@ jobs:
         run: |
           # Navigate to the dynamically determined directory where your Inno Setup script is located
           cd ${{ steps.script-path.outputs.path }}
-          
+          dir ${{ steps.script-path.outputs.path }}
           # Build the installer using the provided .iss script
           iscc /Q /O"$OUTPUT_DIRECTORY" "inno-setup.iss"
 
