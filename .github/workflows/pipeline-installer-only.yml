@@ -95,11 +95,11 @@ jobs:
         run: |
           git clone git@bitbucket-git:thinkrfsoftware/installer.git
           dir
-          if ($env:INPUT_InstallerType -eq "standalone") {
+          if ($env:INPUT_InstallerType -eq standalone) {
             cd installer/packaging/standalone
             $output_directory = & $path ISCC.exe /q installer/packaging/windows/standalone/inno-setup.iss
           }
-          elseif ($env:INPUT_InstallerType -eq "web") {
+          elseif ($env:INPUT_InstallerType -eq web) {
             cd installer/packaging/web
             $output_directory = & $path ISCC.exe /q installer/packaging/windows/web/inno-setup.iss
           }
