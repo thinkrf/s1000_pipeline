@@ -7,8 +7,8 @@ on:
         type: choice
         description: 'The standalone mode creates an electron frontend execulatable and backend agent. The web mode, creates a backend agent only which launches a web browser'     
         options: 
-            - web
-            - standalone
+            - "web"
+            - "standalone"
       FrontendReleaseTag:
         description: 'The S1000 frontend tag that you would like to create a release. Ex: 1.3.0'     
         required: true  
@@ -95,11 +95,11 @@ jobs:
         run: |
           git clone git@bitbucket-git:thinkrfsoftware/installer.git
           dir
-          if ($env:INPUT_InstallerType -eq standalone) {
+          if ($env:INPUT_InstallerType -eq "standalone") {
             cd installer/packaging/standalone
             $output_directory = & $path ISCC.exe /q installer/packaging/windows/standalone/inno-setup.iss
           }
-          elseif ($env:INPUT_InstallerType -eq web) {
+          elseif ($env:INPUT_InstallerType -eq "web") {
             cd installer/packaging/web
             $output_directory = & $path ISCC.exe /q installer/packaging/windows/web/inno-setup.iss
           }
