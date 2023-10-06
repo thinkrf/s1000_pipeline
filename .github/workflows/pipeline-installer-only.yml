@@ -98,11 +98,14 @@ jobs:
           if ($env:INPUT_InstallerType -eq "standalone") {
             cd installer/packaging/standalone
             $output_directory = & $path /q installer/packaging/windows/standalone/inno-setup.iss
-
           }
-          if ($env:INPUT_InstallerType -eq "web") {
+          elseif ($env:INPUT_InstallerType -eq "web") {
             cd installer/packaging/web
             $output_directory = & $path /q installer/packaging/windows/web/inno-setup.iss
+          }
+          else
+          {
+            exit 1
           }
           cd installer/packaging/windows/web
           dir 
