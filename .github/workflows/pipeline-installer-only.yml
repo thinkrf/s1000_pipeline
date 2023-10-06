@@ -112,6 +112,14 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: windows-installer-artifact
-           $myOutputDirectory = $env:OUTPUT_DIRECTORY
-           dir $myOutputDirectory
-          path: $myOutputDirectory/*
+            if ($env:INPUT_InstallerType -eq "standalone") 
+            {
+              cd installer/packaging/standalone/output/
+            }
+            if ($env:INPUT_InstallerType -eq "web") 
+            {
+              cd installer/packaging/web/output
+            }
+            dir
+    
+          path: ./*
