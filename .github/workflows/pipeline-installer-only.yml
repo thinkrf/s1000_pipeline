@@ -133,8 +133,8 @@
           run: Invoke-WebRequest -Uri "http://www.jrsoftware.org/download.php/is.exe" -OutFile ".\is.exe"
 
         - name: Install Inno Setup Compiler
-          run: Start-Process -FilePath .\is.exe -ArgumentList "/SP- /VERYSILENT /DIR=C:\InnoSetup" -Wait
-
+          run: Start-Process -FilePath .\is.exe -ArgumentList "/SP- /VERYSILENT /DIR=C:/InnoSetup" -Wait
+        
         - name: Compile Inno Setup script
           run: "C:/InnoSetup/ISCC.exe" .\inno-setup.iss
 
