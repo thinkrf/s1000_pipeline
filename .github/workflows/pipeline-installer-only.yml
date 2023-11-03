@@ -33,7 +33,7 @@
           default: 'Release'  # Provide a default value if not specified
             
   env:
-    QT_VERSION: '6.5.2'
+    QT_VERSION: '6.5.3'
 
   jobs:
     build-and-push-image:
@@ -136,7 +136,7 @@
           run: Start-Process -FilePath .\is.exe -ArgumentList "/SP- /VERYSILENT /DIR=C:\InnoSetup" -Wait
 
         - name: Compile Inno Setup script
-          run: "C:/InnoSetup/ISCC.exe .\inno-setup.iss"
+            run: "C:\\InnoSetup\\ISCC.exe .\\inno-setup.iss"
 
         - name: Upload Installer Artifact
               uses: actions/upload-artifact@v2
