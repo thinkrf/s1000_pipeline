@@ -103,8 +103,8 @@
             cp bin/x64/libtrf.lib ../s1000_backend/include
 
 
-      - name: Retrieve Installer Repository & Update Inno Setup script
-        run: |
+        - name: Retrieve Installer Repository & Update Inno Setup script
+          run: |
 
             $TAG_VERSION = ${{ github.event.inputs.BackendReleaseTag }}
             $BETA_VERSION = ${{ github.event.inputs.Version }}
@@ -130,20 +130,20 @@
             $INNO_SCRIPT = $INNO_SCRIPT -replace "{#TagVersion}_{#BetaVersion}", "${TAG_VERSION}_${BETA_VERSION}"
             $INNO_SCRIPT | Out-File -FilePath .\inno-setup.iss -Encoding utf8
 
-      - name: Download Inno Setup Compiler
-        run: Invoke-WebRequest -Uri "http://www.jrsoftware.org/download.php/is.exe" -OutFile ".\is.exe"
+        - name: Download Inno Setup Compiler
+          run: Invoke-WebRequest -Uri "http://www.jrsoftware.org/download.php/is.exe" -OutFile ".\is.exe"
 
-      - name: Install Inno Setup Compiler
-        run: Start-Process -FilePath .\is.exe -ArgumentList "/SP- /VERYSILENT /DIR=C:\InnoSetup" -Wait
+        - name: Install Inno Setup Compiler
+          run: Start-Process -FilePath .\is.exe -ArgumentList "/SP- /VERYSILENT /DIR=C:\InnoSetup" -Wait
 
-      - name: Compile Inno Setup script
-        run: "C:\InnoSetup\ISCC.exe" .\inno-setup.iss
+        - name: Compile Inno Setup script
+          run: "C:\InnoSetup\ISCC.exe" .\inno-setup.iss
 
-      - name: Upload Installer Artifact
-            uses: actions/upload-artifact@v2
-            with:
-              name: installer
-              path: .
+        - name: Upload Installer Artifact
+              uses: actions/upload-artifact@v2
+              with:
+                name: installer
+                path: .
 
 
 
