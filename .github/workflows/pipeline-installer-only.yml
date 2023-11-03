@@ -1,4 +1,4 @@
-name: S1000  Application Pipeline
+name: S1000  Installer Only Application Pipeline
 
 on:
   workflow_dispatch:
