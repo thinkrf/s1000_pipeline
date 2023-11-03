@@ -66,17 +66,21 @@
                 IdentityFile ~/.ssh/id_rsa_bit
             if_key_exists: replace
 
-            
-       
               
-
+          - name: Retrieve Frontend Repository 
+          run: |
+            git clone git@bitbucket-git:thinkrfsoftware/s1000_frontend.git
+            cd s1000_frontend
+            git checkout dev_kelly_nextron
+            npm ci
+            npm run build-win64   
+            
         - name: Retrieve Backend Repository and build
           run: |
             git clone git@bitbucket-git:thinkrfsoftware/s1000_backend.git
             cd s1000_backend
             git checkout ${{ github.event.inputs.BackendReleaseTag }}
-
-
+            cd ..
 
         - name: Retrieve libtrf Repository and build
           run: |
@@ -88,14 +92,7 @@
             cp bin/x64/libtrf.lib ../s1000_backend/bin/x64/Release
             cp bin/x64/libtrf.dll ../s1000_backend/include
             cp bin/x64/libtrf.lib ../s1000_backend/include
-
-        - name: Retrieve Frontend Repository 
-          run: |
-            git clone git@bitbucket-git:thinkrfsoftware/s1000_frontend.git
-            cd s1000_frontend
-            git checkout dev_kelly_nextron
-            npm ci
-            npm run build-win64   
+            cd ..
 
         - name: Retrieve Installer Repository & Update Inno Setup script
           run: |            
