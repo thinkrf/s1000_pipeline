@@ -136,11 +136,10 @@
           run: Start-Process -FilePath .\is.exe -ArgumentList "/SP- /VERYSILENT /DIR=C:\InnoSetup" -Wait
 
         - name: Compile Inno Setup script
-          run: "C:\InnoSetup\ISCC.exe" .\inno-setup.iss
+          run: "C:/InnoSetup/ISCC.exe" .\inno-setup.iss
 
         - name: Upload Installer Artifact
               uses: actions/upload-artifact@v2
               with:
                 name: installer
                 path: .            
-                
