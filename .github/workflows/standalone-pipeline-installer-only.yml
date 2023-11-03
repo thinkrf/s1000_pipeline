@@ -67,7 +67,7 @@
             if_key_exists: replace
 
               
-          - name: Retrieve Frontend Repository 
+        - name: Retrieve Frontend Repository 
           run: |
             git clone git@bitbucket-git:thinkrfsoftware/s1000_frontend.git
             cd s1000_frontend
