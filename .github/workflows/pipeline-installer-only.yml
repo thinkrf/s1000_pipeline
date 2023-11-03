@@ -139,7 +139,7 @@
           run: "C:\\InnoSetup\\ISCC.exe .\\inno-setup.iss"
 
         - name: Upload Installer Artifact
-              uses: actions/upload-artifact@v2
-              with:
-                name: installer
-                path: .            
+          uses: actions/upload-artifact@v2
+          with:
+            name: installer
+            path: .            
