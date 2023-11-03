@@ -1,5 +1,4 @@
   name: S1000 Installer Only Application Pipeline
-
   on:
     workflow_dispatch:
       inputs:        
@@ -143,16 +142,5 @@
               uses: actions/upload-artifact@v2
               with:
                 name: installer
-                path: .
-
-
-
-
-
-
-
-
-
-
-
-            
+                path: .            
+                
