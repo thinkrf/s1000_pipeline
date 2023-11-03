@@ -27,13 +27,12 @@
             - unstable
             - testing
             - stable
-        Version:
-          description: 'Beta Version / Release'
-          required: false
-          default: 'Release'  # Provide a default value if not specified
             
   env:
     QT_VERSION: '6.5.3'
+    TAG_VERSION: ${{ github.event.inputs.BackendReleaseTag }}
+
+
 
   jobs:
     build-and-push-image:
@@ -105,15 +104,7 @@
             npm run build-win64   
 
         - name: Retrieve Installer Repository & Update Inno Setup script
-          run: |
-
-            $TAG_VERSION = ${{ github.event.inputs.BackendReleaseTag }}
-            TAG_VERSION= $(format("{0}", $TAG_VERSION))
-
-            $BETA_VERSION = ${{ github.event.inputs.Version }}
-            $BETA_VERSION =  $(format("{0}", $BETA_VERSION))
-
-            
+          run: |            
             git clone git@bitbucket-git:thinkrfsoftware/installer.git
             dir
             if ($env:INPUT_InstallerType -eq "standalone") 
