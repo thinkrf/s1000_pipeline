@@ -74,13 +74,7 @@
             if_key_exists: replace
 
             
-        - name: Retrieve Frontend Repository 
-          run: |
-            git clone git@bitbucket-git:thinkrfsoftware/s1000_frontend.git
-            cd s1000_frontend
-            git checkout dev_kelly_nextron
-            npm ci
-            npm run build-win64          
+       
               
 
         - name: Retrieve Backend Repository and build
@@ -93,7 +87,8 @@
 
         - name: Retrieve libtrf Repository and build
           run: |
-            git clone git@bitbucket.org:thinkrfsoftware/libtrf.git
+          
+            git clone git@bitbucket-git:thinkrfsoftware/libtrf.git
             cd libtrf
             git checkout ${{ github.event.inputs.LibtrfReleaseTag }}
             cp bin/x64/libtrf.dll ../s1000_backend/bin/x64/Release
@@ -101,7 +96,14 @@
             cp bin/x64/libtrf.dll ../s1000_backend/include
             cp bin/x64/libtrf.lib ../s1000_backend/include
 
-
+        - name: Retrieve Frontend Repository 
+          run: |
+            git clone git@bitbucket-git:thinkrfsoftware/s1000_frontend.git
+            cd s1000_frontend
+            git checkout dev_kelly_nextron
+            npm ci
+            npm run build-win64   
+            
         - name: Retrieve Installer Repository & Update Inno Setup script
           run: |
 
