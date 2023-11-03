@@ -112,7 +112,7 @@
             $INNO_SCRIPT = $INNO_SCRIPT -replace "{#TagVersion}_{#BetaVersion}", "${TAG_VERSION}_${BETA_VERSION}"
             $INNO_SCRIPT | Out-File -FilePath .\inno-setup.iss -Encoding utf8
 
-            "C:\\InnoSetup\\ISCC.exe .\\inno-setup.iss"
+            & "C:\InnoSetup\ISCC.exe" .\inno-setup.iss
 
         - name: Upload Installer Artifact
           uses: actions/upload-artifact@v2
