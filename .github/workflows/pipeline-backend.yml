@@ -81,7 +81,7 @@ jobs:
         
       - name: Retrieve Installer Repository
         run: |
-          git clone git@bitbucket-git:thinkrfsoftware/s1000-installer.git      
+          git clone git@bitbucket-git:thinkrfsoftware/installer.git      
       
         
         # The first line of this job may not be needed, but it is included nonetheless for safekeeping
