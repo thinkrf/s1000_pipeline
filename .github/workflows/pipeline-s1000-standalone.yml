@@ -268,14 +268,12 @@
               npm run build-linux  
             working-directory: ${{ github.workspace }}
 
-          - name: Retrieve Backend Repository and build
+          - name: Retrieve Backend Repository 
             run: |
               git clone git@bitbucket-git:thinkrfsoftware/s1000_backend.git
               pwd
               cd s1000_backend
               git checkout ${{ github.event.inputs.BackendReleaseTag }}
-              cmake -DCMAKE_PREFIX_PATH="${{ github.workspace }}/Qt/6.5.3/gcc_64/cmake;${{ github.workspace }}/portaudio-install/lib/cmake" -DPORTAUDIO_ROOT="${{ github.workspace }}/portaudio-install"
-              cmake --build . --config Release
               cd ..
             working-directory: ${{ github.workspace }}
 
@@ -287,6 +285,14 @@
               cp bin/linux/x86_64/libtrf.so ../s1000_backend/bin/linux
               cp bin/linux/x86_64/libtrf.so ../s1000_backend/include
               sudo cp bin/linux/x86_64/libtrf.so /usr/lib/
+              cd ..
+            working-directory: ${{ github.workspace }}
+
+          - name: Build Backend Repository 
+            run: |
+              cd s1000_backend
+              cmake -DCMAKE_PREFIX_PATH="${{ github.workspace }}/Qt/6.5.3/gcc_64/cmake;${{ github.workspace }}/portaudio-install/lib/cmake" -DPORTAUDIO_ROOT="${{ github.workspace }}/portaudio-install"
+              cmake --build . --config Release
               cd ..
             working-directory: ${{ github.workspace }}
 
