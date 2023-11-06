@@ -247,6 +247,12 @@
           - name: Checkout code
             uses: actions/checkout@v2
 
+          - name: Install Qt
+            uses: jurplel/install-qt-action@v3
+            with:
+              qt-version: 6.5.3
+              platform: ubuntu
+            
           - name: Set up Qt 6.5.3
             run: |
               sudo apt-get update
