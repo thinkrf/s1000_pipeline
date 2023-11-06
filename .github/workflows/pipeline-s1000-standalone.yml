@@ -237,9 +237,6 @@
                   IdentityFile ~/.ssh/id_rsa_bit
               if_key_exists: replace
 
-          - name: Checkout code
-            uses: actions/checkout@v2
-
           - name: Install Qt
             uses: jurplel/install-qt-action@v3.3.0
             with:
@@ -247,7 +244,6 @@
               target: desktop
               installDir: /usr/local/Qt/
           
-
           - name: Install dependencies
             run: |
               sudo apt-get update
