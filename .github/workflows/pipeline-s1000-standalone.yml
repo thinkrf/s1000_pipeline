@@ -194,7 +194,7 @@
               name: Windows standalone installer
               path: installer/packaging/windows/standalone/Output/   # Specify the directory where the installer is created  
 
-      build-and-push-image:
+    build-and-push-image:
         runs-on: ubuntu-latest
     
         permissions:
@@ -307,7 +307,7 @@
               sed -i "s/PACKAGE+V=\"1.1.0\"/PACKAGE+V=\"$TAG_Version\"/" installer.sh
 
           - name: Upload Installer Artifact
-          uses: actions/upload-artifact@v2
-          with:
-            name: linux standalone installer
+            uses: actions/upload-artifact@v2
+            with:
+              name: linux standalone installer
             path: installer/packaging/linux/standalone/   # Specify the directory where the installer is created  
