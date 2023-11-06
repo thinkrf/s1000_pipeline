@@ -93,13 +93,14 @@
           - name: Check Boost cache on Windows
             id: check-boost-cache
             run: |
-              if [ -d "C:\Program Files\boost\boost_1_80_0" ]; then
-                echo "Boost cache exists"
+              if (Test-Path "C:\Program Files\boost\boost_1_80_0" -PathType Container) {
+                Write-Host "Boost cache exists"
                 echo "::set-output name=boost-cache-exists::true"
-              else
-                echo "Boost cache doesn't exist"
+              }
+              else {
+                Write-Host "Boost cache doesn't exist"
                 echo "::set-output name=boost-cache-exists::false"
-              fi
+              }
             shell: powershell
 
           - name: Cache Boost installation
@@ -248,20 +249,20 @@
 
           - name: Set up Qt 6.5.3
             run: |
+              sudo apt-get update
+              sudo apt-get install -y build-essential cmake unzip libgl1-mesa-dev libx11-dev libxext-dev libxfixes-dev libxi-dev libxrender-dev libxcb1-dev libx11-xcb-dev libxrandr-dev libxcb-keysyms1-dev libxcb-image0-dev libxcb-shm0-dev libxcb-icccm4-dev libxcb-sync-dev libxcb-xfixes0-dev libxcb-shape0-dev libxcb-randr0-dev libxcb-render-util0-dev libfontconfig1-dev libfreetype6-dev libssl-dev libxcursor-dev libxcomposite-dev libxdamage-dev libxslt1-dev libxslt1.1 libssl-dev libxinerama-dev libxcursor-dev libxrandr-dev libxrandr2 libxcursor1 libxcursor-dev libxrender-dev
+
               # Check if the Qt cache already exists
               if [ -d "/usr/local/Qt" ]; then
                 echo "Qt cache exists"
                 echo "::set-output name=qt-cache-hit::true"
               else
                 echo "Qt cache doesn't exist"
-                echo "::set-output name=qt-cache-hit::false"
-                sudo apt-get update
-                sudo apt-get install -y build-essential
-                wget https://download.qt.io/official_releases/qt/6.5/6.5.3/submodules/qtbase-everywhere-src-6.5.3.tar.xz
-                tar -xvf qtbase-everywhere-src-6.5.3.tar.xz
+                https://download.qt.io/official_releases/qt/6.5/6.5.3/submodules/qtbase-everywhere-src-6.5.3.zip
+                unzip qtbase-everywhere-src-6.5.3.zip
                 cd qtbase-everywhere-src-6.5.3
                 ./configure -opensource -confirm-license
-                make -j
+                make
                 sudo make install
               fi
             working-directory: ${{ github.workspace }}
