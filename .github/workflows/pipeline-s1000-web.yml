@@ -103,25 +103,36 @@
               if_key_exists: replace
 
 
-          - name: Cache Boost Depends
-            id: cache-boost
+          - name: Check Boost cache on Windows
+            id: check-boost-cache
+            run: |
+              if [ -d "C:\Program Files\boost\boost_1_80_0" ]; then
+                echo "Boost cache exists"
+                echo "::set-output name=boost-cache-exists::true"
+              else
+                echo "Boost cache doesn't exist"
+                echo "::set-output name=boost-cache-exists::false"
+              fi
+            shell: powershell
+
+          - name: Cache Boost installation
+            if: steps.check-boost-cache.outputs.boost-cache-exists == 'false'
             uses: actions/cache@v2
             with:
-              path: "C:/Program Files/boost"
-              key: windows-boost-cache
-              restore-keys: |
-                windows-boost-cache
+              path: |
+                C:\Program Files\boost\boost_1_80_0
+              key: windows-Boost-1.80.0
 
           - name: Get Boost
-            if: steps.cache-boost.outputs.cache-hit != 'true'
+            if: steps.check-boost-cache.outputs.boost-cache-exists == 'false'
             run: |
               Invoke-WebRequest -OutFile boost.zip -Uri https://boostorg.jfrog.io/artifactory/main/release/1.80.0/source/boost_1_80_0.zip
-              7z x boost.zip -o"C:\Program Files\boost\boost_1_80_0"
+              7z x boost.zip -o"C:\Program Files\boost\boost_1_80_0"      
               cd "C:\Program Files\boost\boost_1_80_0\boost_1_80_0"
               .\bootstrap.bat
               .\b2.exe
               cd C:\Users\runneradmin
-
+          
           - name: Checkout code
             uses: actions/checkout@v2
 
@@ -189,9 +200,9 @@
               git clone git@bitbucket-git:thinkrfsoftware/installer.git
               dir
               cd installer/packaging/windows/web 
-              Write-Output "TAG_VERSION=$TAG_VERSION" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+              Write-Output "TAG_VERSION=$TAG_VERSION" | Out-File -FilePath "$env:GITHUB_ENV" -Encoding utf8 -Append
               $INNO_SCRIPT = Get-Content -Path .\inno-setup.iss
-              $INNO_SCRIPT = $INNO_SCRIPT -replace '#define TagVersion "(.*?)"', '#define TagVersion "$env:TAG_VERSION"'
+              $INNO_SCRIPT = $INNO_SCRIPT -replace '#define TagVersion "(.*?)"', "#define TagVersion `"$env:TAG_VERSION`""
               $INNO_SCRIPT | Out-File -FilePath .\inno-setup.iss -Encoding utf8
 
               & "C:\InnoSetup\ISCC.exe" .\inno-setup.iss
@@ -245,16 +256,27 @@
             uses: actions/checkout@v2
 
 
+          - name: Checkout code
+            uses: actions/checkout@v2
+
           - name: Set up Qt 6.5.3
             run: |
-              sudo apt-get update
-              sudo apt-get install -y build-essential
-              wget https://download.qt.io/official_releases/qt/6.5/6.5.3/single/qt-everywhere-src-6.5.3.tar.xz
-              tar -xvf qt-everywhere-src-6.5.3.tar.xz
-              cd qt-everywhere-src-6.5.3
-              ./configure -opensource -confirm-license
-              make
-              sudo make install
+              # Check if the Qt cache already exists
+              if [ -d "/usr/local/Qt" ]; then
+                echo "Qt cache exists"
+                echo "::set-output name=qt-cache-hit::true"
+              else
+                echo "Qt cache doesn't exist"
+                echo "::set-output name=qt-cache-hit::false"
+                sudo apt-get update
+                sudo apt-get install -y build-essential
+                wget https://download.qt.io/official_releases/qt/6.5/6.5.3/submodules/qtbase-everywhere-src-6.5.3.tar.xz
+                tar -xvf qtbase-everywhere-src-6.5.3.tar.xz
+                cd qtbase-everywhere-src-6.5.3
+                ./configure -opensource -confirm-license
+                make
+                sudo make install
+              fi
             working-directory: ${{ github.workspace }}
 
           - name: Verify Qt installation
@@ -262,6 +284,14 @@
               qmake -v
               make -v
             shell: bash
+
+          - name: Cache Qt installation
+            uses: actions/cache@v2
+            with:
+              path: |
+                /usr/local/Qt
+            key: ${{ runner.os }}-Qt-6.5.3
+            if: steps.set-up-qt.outputs.qt-cache-hit != 'true'
 
           - name: Install dependencies
             run: |
@@ -319,4 +349,4 @@
             uses: actions/upload-artifact@v2
             with:
               name: linux web installer
-            path: installer/packaging/linux/web/   # Specify the directory where the installer is created  
+              path: installer/packaging/linux/web/   # Specify the directory where the installer is created  
