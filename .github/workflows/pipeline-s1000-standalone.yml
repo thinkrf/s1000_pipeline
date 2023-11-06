@@ -30,164 +30,165 @@
       build-and-push-image:
         runs-on: windows-latest
     
-    permissions:
-      contents: read
-      packages: write
-    steps:
-      - name: Print Release Version
-        run: |
-          echo "Backend Release ${{ github.event.inputs.BackendReleaseTag }}"
-          echo "Frontend Release ${{ github.event.inputs.FrontendReleaseTag }}"
-    
-      - name: Set Port
-        run: |
-          echo "Setting port environment variable"
-          echo "port: $APP_Port" >> $GITHUB_ENV
-
-      - name: Get 7-Zip
-        run: |
-          Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
-          choco install 7zip
-
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Build and install PortAudio
-        continue-on-error: true
-        run: |
-          git clone https://github.com/PortAudio/portaudio.git
-          cd portaudio
-          mkdir build 
-          cd build
-          cmake .. -DCMAKE_INSTALL_PREFIX="C:/Program Files/portaudio"
-          cmake --build . --target install --config Release
-          cd ..\..\..\..
-    
-      - name: Checkout code
-        uses: actions/checkout@v2
+        permissions:
+          contents: read
+          packages: write
+          
+        steps:
+          - name: Print Release Version
+            run: |
+              echo "Backend Release ${{ github.event.inputs.BackendReleaseTag }}"
+              echo "Frontend Release ${{ github.event.inputs.FrontendReleaseTag }}"
         
-      - name: Install Qt
-        uses: jurplel/install-qt-action@v3.3.0
-        with:
-          version: ${{ env.QT_VERSION }}
-          target: desktop
-          installDir: C:\Qt
+          - name: Set Port
+            run: |
+              echo "Setting port environment variable"
+              echo "port: $APP_Port" >> $GITHUB_ENV
 
+          - name: Get 7-Zip
+            run: |
+              Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+              choco install 7zip
 
-      - name: Checkout code
-        uses: actions/checkout@v2
+          - name: Checkout code
+            uses: actions/checkout@v2
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v2
-
-
-      - name: Install Bitbucket SSH key
-        uses: shimataro/ssh-key-action@v2
-        with:
-          key: ${{ secrets.BITBUCKET_SSH_PRIVATE_KEY }}
-          name: id_rsa_bit
-          known_hosts: ${{ secrets.KNOWN_HOSTS_BITBUCKET }}
-          config: |
-            Host bitbucket-git
-              HostName bitbucket.org
-              IdentityFile ~/.ssh/id_rsa_bit
-          if_key_exists: replace
-
-
-      - name: Cache Boost Depends
-        id: cache-boost
-        uses: actions/cache@v2
-        with:
-          path: "C:/Program Files/boost"
-          key: windows-boost-cache
-          restore-keys: |
-            windows-boost-cache
-
-      - name: Get Boost
-        if: steps.cache-boost.outputs.cache-hit != 'true'
-        run: |
-          Invoke-WebRequest -OutFile boost.zip -Uri https://boostorg.jfrog.io/artifactory/main/release/1.80.0/source/boost_1_80_0.zip
-          7z x boost.zip -o"C:\Program Files\boost\boost_1_80_0"      
-          cd "C:\Program Files\boost\boost_1_80_0\boost_1_80_0"
-          .\bootstrap.bat
-          .\b2.exe
-          cd C:\Users\runneradmin
-
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.x
-
-      - name: Install required Python packages
-        run: pip install pyyaml
-
-      - name: Install Bitbucket SSH key
-        uses: shimataro/ssh-key-action@v2
-        with:
-          key: ${{ secrets.BITBUCKET_SSH_PRIVATE_KEY }}
-          name: id_rsa_bit
-          known_hosts: ${{ secrets.KNOWN_HOSTS_BITBUCKET }}
-          config: |
-            Host bitbucket-git
-              HostName bitbucket.org
-              IdentityFile ~/.ssh/id_rsa_bit
-          if_key_exists: replace
-
-      - name: Retrieve Frontend Repository 
-        run: |
-          git clone git@bitbucket-git:thinkrfsoftware/s1000_frontend.git
-          cd s1000_frontend
-          git checkout ${{ github.event.inputs.FrontendReleaseTag }}
-          npm ci
-          npm run build-win64   
+          - name: Build and install PortAudio
+            continue-on-error: true
+            run: |
+              git clone https://github.com/PortAudio/portaudio.git
+              cd portaudio
+              mkdir build 
+              cd build
+              cmake .. -DCMAKE_INSTALL_PREFIX="C:/Program Files/portaudio"
+              cmake --build . --target install --config Release
+              cd ..\..\..\..
+        
+          - name: Checkout code
+            uses: actions/checkout@v2
             
-      - name: Retrieve Backend Repository and build
-        run: |
-          git clone git@bitbucket-git:thinkrfsoftware/s1000_backend.git
-          cd s1000_backend
-          git checkout ${{ github.event.inputs.BackendReleaseTag }}
-          cd ../
-          cd s1000_backend\include
-          git clone https://github.com/zaphoyd/websocketpp.git
-          cd websocketpp
-          mkdir build 
-          cd build
-          cmake .. -DCMAKE_INSTALL_PREFIX="C:/Program Files/websocketpp"
-          cmake --build . --target install --config Release
-          cd ../../..
-          cmake -DCMAKE_PREFIX_PATH="C:/Qt/6.5.2/msvc2019_64;C:/Program Files/portaudio/cmake/portaudio" -DBOOST_ROOT="C:/Program Files/boost/boost_1_80_0/boost_1_80_0" -DPORTAUDIO_ROOT="C:/Program Files/portaudio"
-          cmake --build . --config Release
-          cd ..
+          - name: Install Qt
+            uses: jurplel/install-qt-action@v3.3.0
+            with:
+              version: ${{ env.QT_VERSION }}
+              target: desktop
+              installDir: C:\Qt
 
-      - name: Retrieve libtrf Repository and build
-        run: |
-        
-          git clone git@bitbucket-git:thinkrfsoftware/libtrf.git
-          cd libtrf
-          git checkout ${{ github.event.inputs.LibtrfReleaseTag }}
-          cp bin/x64/libtrf.dll ../s1000_backend/bin/x64/Release
-          cp bin/x64/libtrf.lib ../s1000_backend/bin/x64/Release
-          cp bin/x64/libtrf.dll ../s1000_backend/include
-          cp bin/x64/libtrf.lib ../s1000_backend/include
-          cd ..
 
-      - name: Retrieve Installer Repository & Update Inno Setup script
-        run: |            
-          git clone git@bitbucket-git:thinkrfsoftware/installer.git
-          dir
-          cd installer/packaging/windows/standalone 
-          Write-Output "TAG_VERSION=$TAG_VERSION" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          $INNO_SCRIPT = Get-Content -Path .\inno-setup.iss
-          $INNO_SCRIPT = $INNO_SCRIPT -replace '#define TagVersion "(.*?)"', '#define TagVersion "$env:TAG_VERSION"'
-          $INNO_SCRIPT | Out-File -FilePath .\inno-setup.iss -Encoding utf8
+          - name: Checkout code
+            uses: actions/checkout@v2
 
-          & "C:\InnoSetup\ISCC.exe" .\inno-setup.iss
+          - name: Setup Node.js
+            uses: actions/setup-node@v2
 
-      - name: Upload Installer Artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: installer
-          path: installer/packaging/windows/standalone/Output/   # Specify the directory where the installer is created  
+
+          - name: Install Bitbucket SSH key
+            uses: shimataro/ssh-key-action@v2
+            with:
+              key: ${{ secrets.BITBUCKET_SSH_PRIVATE_KEY }}
+              name: id_rsa_bit
+              known_hosts: ${{ secrets.KNOWN_HOSTS_BITBUCKET }}
+              config: |
+                Host bitbucket-git
+                  HostName bitbucket.org
+                  IdentityFile ~/.ssh/id_rsa_bit
+              if_key_exists: replace
+
+
+          - name: Cache Boost Depends
+            id: cache-boost
+            uses: actions/cache@v2
+            with:
+              path: "C:/Program Files/boost"
+              key: windows-boost-cache
+              restore-keys: |
+                windows-boost-cache
+
+          - name: Get Boost
+            if: steps.cache-boost.outputs.cache-hit != 'true'
+            run: |
+              Invoke-WebRequest -OutFile boost.zip -Uri https://boostorg.jfrog.io/artifactory/main/release/1.80.0/source/boost_1_80_0.zip
+              7z x boost.zip -o"C:\Program Files\boost\boost_1_80_0"      
+              cd "C:\Program Files\boost\boost_1_80_0\boost_1_80_0"
+              .\bootstrap.bat
+              .\b2.exe
+              cd C:\Users\runneradmin
+
+          - name: Checkout code
+            uses: actions/checkout@v2
+
+          - name: Set up Python
+            uses: actions/setup-python@v2
+            with:
+              python-version: 3.x
+
+          - name: Install required Python packages
+            run: pip install pyyaml
+
+          - name: Install Bitbucket SSH key
+            uses: shimataro/ssh-key-action@v2
+            with:
+              key: ${{ secrets.BITBUCKET_SSH_PRIVATE_KEY }}
+              name: id_rsa_bit
+              known_hosts: ${{ secrets.KNOWN_HOSTS_BITBUCKET }}
+              config: |
+                Host bitbucket-git
+                  HostName bitbucket.org
+                  IdentityFile ~/.ssh/id_rsa_bit
+              if_key_exists: replace
+
+          - name: Retrieve Frontend Repository 
+            run: |
+              git clone git@bitbucket-git:thinkrfsoftware/s1000_frontend.git
+              cd s1000_frontend
+              git checkout ${{ github.event.inputs.FrontendReleaseTag }}
+              npm ci
+              npm run build-win64   
+                
+          - name: Retrieve Backend Repository and build
+            run: |
+              git clone git@bitbucket-git:thinkrfsoftware/s1000_backend.git
+              cd s1000_backend
+              git checkout ${{ github.event.inputs.BackendReleaseTag }}
+              cd ../
+              cd s1000_backend\include
+              git clone https://github.com/zaphoyd/websocketpp.git
+              cd websocketpp
+              mkdir build 
+              cd build
+              cmake .. -DCMAKE_INSTALL_PREFIX="C:/Program Files/websocketpp"
+              cmake --build . --target install --config Release
+              cd ../../..
+              cmake -DCMAKE_PREFIX_PATH="C:/Qt/6.5.2/msvc2019_64;C:/Program Files/portaudio/cmake/portaudio" -DBOOST_ROOT="C:/Program Files/boost/boost_1_80_0/boost_1_80_0" -DPORTAUDIO_ROOT="C:/Program Files/portaudio"
+              cmake --build . --config Release
+              cd ..
+
+          - name: Retrieve libtrf Repository and build
+            run: |
+            
+              git clone git@bitbucket-git:thinkrfsoftware/libtrf.git
+              cd libtrf
+              git checkout ${{ github.event.inputs.LibtrfReleaseTag }}
+              cp bin/x64/libtrf.dll ../s1000_backend/bin/x64/Release
+              cp bin/x64/libtrf.lib ../s1000_backend/bin/x64/Release
+              cp bin/x64/libtrf.dll ../s1000_backend/include
+              cp bin/x64/libtrf.lib ../s1000_backend/include
+              cd ..
+
+          - name: Retrieve Installer Repository & Update Inno Setup script
+            run: |            
+              git clone git@bitbucket-git:thinkrfsoftware/installer.git
+              dir
+              cd installer/packaging/windows/standalone 
+              Write-Output "TAG_VERSION=$TAG_VERSION" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+              $INNO_SCRIPT = Get-Content -Path .\inno-setup.iss
+              $INNO_SCRIPT = $INNO_SCRIPT -replace '#define TagVersion "(.*?)"', '#define TagVersion "$env:TAG_VERSION"'
+              $INNO_SCRIPT | Out-File -FilePath .\inno-setup.iss -Encoding utf8
+
+              & "C:\InnoSetup\ISCC.exe" .\inno-setup.iss
+
+          - name: Upload Installer Artifact
+            uses: actions/upload-artifact@v2
+            with:
+              name: installer
+              path: installer/packaging/windows/standalone/Output/   # Specify the directory where the installer is created  
