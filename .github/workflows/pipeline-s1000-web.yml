@@ -261,7 +261,7 @@
             with:
               version: ${{ env.QT_VERSION }}
               target: desktop
-              installDir: /usr/local/Qt/
+              installDir: C:\Qt
 
 
           - name: Install dependencies
@@ -293,7 +293,7 @@
               pwd
               cd s1000_backend
               git checkout ${{ github.event.inputs.BackendReleaseTag }}
-              cmake -DCMAKE_PREFIX_PATH="/usr/local/Qt/6.5.3;/usr/local/lib/cmake/portaudio" -DPORTAUDIO_ROOT="/usr/local"
+              cmake -DCMAKE_PREFIX_PATH="${{ github.workspace }}/Qt/6.5.3;${{ github.workspace }}/portaudio-install;/usr/local/Qt/6.5.3" -DPORTAUDIO_ROOT="${{ github.workspace }}/portaudio-install"
               cmake --build . --config Release
               cd ..
             working-directory: ${{ github.workspace }}

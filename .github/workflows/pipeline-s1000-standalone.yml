@@ -285,7 +285,7 @@
               pwd
               cd s1000_backend
               git checkout ${{ github.event.inputs.BackendReleaseTag }}
-              cmake -DCMAKE_PREFIX_PATH="${{ github.workspace }}/portaudio-install;/usr/local/Qt/6.5.3" -DPORTAUDIO_ROOT="${{ github.workspace }}/portaudio-install"
+              cmake -DCMAKE_PREFIX_PATH="${{ github.workspace }}/Qt/6.5.3;${{ github.workspace }}/portaudio-install;/usr/local/Qt/6.5.3" -DPORTAUDIO_ROOT="${{ github.workspace }}/portaudio-install"
               cmake --build . --config Release
               cd ..
             working-directory: ${{ github.workspace }}
