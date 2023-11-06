@@ -259,9 +259,9 @@
                 sudo apt-get install -y build-essential
                 wget https://download.qt.io/official_releases/qt/6.5/6.5.3/submodules/qtbase-everywhere-src-6.5.3.tar.xz
                 tar -xvf qtbase-everywhere-src-6.5.3.tar.xz
-                cd qtbase-everywhere-src-6.5.3.tar.xz
+                cd qtbase-everywhere-src-6.5.3
                 ./configure -opensource -confirm-license
-                make
+                make -j
                 sudo make install
               fi
             working-directory: ${{ github.workspace }}
