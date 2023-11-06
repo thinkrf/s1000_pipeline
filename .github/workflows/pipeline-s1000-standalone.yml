@@ -229,7 +229,8 @@
               git clone https://github.com/PortAudio/portaudio.git
               cd portaudio
               cmake -DCMAKE_INSTALL_PREFIX=${{ github.workspace }}/portaudio-install .
-              cmake --build . --target install --config Release
+              sudo cmake --build . --target install --config Release
+
             working-directory: ${{ github.workspace }}
 
           - name: Install Bitbucket SSH key
@@ -285,7 +286,7 @@
               pwd
               cd s1000_backend
               git checkout ${{ github.event.inputs.BackendReleaseTag }}
-              cmake -DCMAKE_PREFIX_PATH="${{ github.workspace }}/Qt/6.5.3;${{ github.workspace }}/portaudio-install;/usr/local/Qt/6.5.3" -DPORTAUDIO_ROOT="${{ github.workspace }}/portaudio-install"
+              cmake -DCMAKE_PREFIX_PATH="${{ github.workspace }}/Qt/6.5.3/gcc_64/cmake;${{ github.workspace }}/portaudio-install/lib/cmake" -DPORTAUDIO_ROOT="${{ github.workspace }}/portaudio-install"
               cmake --build . --config Release
               cd ..
             working-directory: ${{ github.workspace }}
