@@ -141,7 +141,7 @@ jobs:
           run: |
             git clone git@bitbucket-git:thinkrfsoftware/s1000_frontend.git
             cd s1000_frontend
-            git checkout dev_kelly_nextron
+            git checkout ${{ github.event.inputs.FrontendReleaseTag }}"
             npm ci
             npm run build-win64   
             
@@ -162,7 +162,6 @@ jobs:
             cmake -DCMAKE_PREFIX_PATH="C:/Qt/6.5.2/msvc2019_64;C:/Program Files/portaudio/cmake/portaudio" -DBOOST_ROOT="C:/Program Files/boost/boost_1_80_0/boost_1_80_0" -DPORTAUDIO_ROOT="C:/Program Files/portaudio"
             cmake --build . --config Release
             cd ..
-
 
         - name: Retrieve libtrf Repository and build
           run: |

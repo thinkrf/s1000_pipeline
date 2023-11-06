@@ -71,7 +71,7 @@
           run: |
             git clone git@bitbucket-git:thinkrfsoftware/s1000_frontend.git
             cd s1000_frontend
-            git checkout dev_kelly_nextron
+            git checkout ${{ github.event.inputs.FrontendReleaseTag }}
             npm ci
             npm run build-win64   
             
