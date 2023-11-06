@@ -26,7 +26,7 @@
     QT_VERSION: '6.5.3'
     TAG_VERSION: ${{ github.event.inputs.BackendReleaseTag }}
 
-jobs:
+  jobs:
   build-and-push-image:
     runs-on: windows-latest
     
