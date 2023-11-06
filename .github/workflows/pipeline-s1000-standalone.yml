@@ -22,13 +22,13 @@
             - testing
             - stable
             
-  env:
-    QT_VERSION: '6.5.3'
-    TAG_VERSION: ${{ github.event.inputs.BackendReleaseTag }}
+    env:
+      QT_VERSION: '6.5.3'
+      TAG_VERSION: ${{ github.event.inputs.BackendReleaseTag }}
 
-  jobs:
-  build-and-push-image:
-    runs-on: windows-latest
+    jobs:
+      build-and-push-image:
+        runs-on: windows-latest
     
     permissions:
       contents: read
@@ -96,16 +96,15 @@
 
       - name: Cache Boost Depends
         id: cache-boost
-        uses: actions/cache@v3
-        env:
-          cache-name: boost-for-windows
+        uses: actions/cache@v2
         with:
           path: "C:/Program Files/boost"
           key: windows-boost-cache
+          restore-keys: |
+          windows-boost-cache
 
-        # This step only occurs if this workflow hasn't been run in the last 7 days, and is by far the longest step - but is nessecary
-      - if: ${{ steps.cache-boost.outputs.cache-hit != 'true' }}
-        name: Get Boost
+      - name: Get Boost
+        if: steps.cache-boost.outputs.cache-hit != 'true'
         run: |
           Invoke-WebRequest -OutFile boost.zip -Uri https://boostorg.jfrog.io/artifactory/main/release/1.80.0/source/boost_1_80_0.zip
           7z x boost.zip -o"C:\Program Files\boost\boost_1_80_0"      
