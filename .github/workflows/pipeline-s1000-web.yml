@@ -33,7 +33,7 @@
         permissions:
           contents: read
           packages: write
-          
+
         steps:
           - name: Print Release Version
             run: |
@@ -193,3 +193,121 @@
             with:
               name: installer
               path: installer/packaging/windows/web/Output/   # Specify the directory where the installer is created  
+
+
+      build-and-push-image:
+        runs-on: ubuntu-latest
+    
+        permissions:
+          contents: read
+          packages: write
+          
+        steps:
+          - name: Print Release Version
+            run: |
+              echo "Backend Release ${{ github.event.inputs.BackendReleaseTag }}"
+              echo "Frontend Release ${{ github.event.inputs.FrontendReleaseTag }}"
+
+          - name: Checkout code
+            uses: actions/checkout@v2
+
+          - name: Build and install PortAudio
+            continue-on-error: true
+            run: |
+              git clone https://github.com/PortAudio/portaudio.git
+              cd portaudio
+              cmake .
+              cmake --build . --target install --config Release
+            working-directory: ${{ github.workspace }}
+
+          - name: Install Bitbucket SSH key
+            uses: shimataro/ssh-key-action@v2
+            with:
+              key: ${{ secrets.BITBUCKET_SSH_PRIVATE_KEY }}
+              name: id_rsa_bit
+              known_hosts: ${{ secrets.KNOWN_HOSTS_BITBUCKET }}
+              config: |
+                Host bitbucket-git
+                  HostName bitbucket.org
+                  IdentityFile ~/.ssh/id_rsa_bit
+              if_key_exists: replace
+
+          - name: Checkout code
+            uses: actions/checkout@v2
+
+
+          - name: Set up Qt 6.5.3
+            run: |
+              sudo apt-get update
+              sudo apt-get install -y build-essential
+              wget https://download.qt.io/official_releases/qt/6.5/6.5.3/single/qt-everywhere-src-6.5.3.tar.xz
+              tar -xvf qt-everywhere-src-6.5.3.tar.xz
+              cd qt-everywhere-src-6.5.3
+              ./configure -opensource -confirm-license
+              make
+              sudo make install
+            working-directory: ${{ github.workspace }}
+
+          - name: Verify Qt installation
+            run: |
+              qmake -v
+              make -v
+            shell: bash
+
+          - name: Install dependencies
+            run: |
+              sudo apt-get update
+              sudo apt-get install -y build-essential   
+              sudo apt-get install -y libwebsocketpp-dev
+              sudo apt-get install -y libboost-all-dev
+              sudo apt-get install -y libpng16-16
+              sudo apt-get install -y libfontconfig
+              sudo apt install -y libx11-dev libxcb1-dev libxkbcommon-x11-dev libgl1-mesa-dev libpulse-dev libasound2-dev libfontconfig1-dev libfreetype6-dev libssl-dev
+              sudo apt-get install alsa-utils
+              sudo apt-get install wmctrl
+              sudo apt-get install -y libasound-dev portaudio19-dev libportaudio2 libportaudiocpp0
+              sudo apt-get install ffmpeg
+              sudo apt-get install -y libgl1-mesa-glx
+
+          - name: Retrieve Frontend Repository 
+            run: |
+              git clone git@bitbucket-git:thinkrfsoftware/s1000_frontend.git
+              cd s1000_frontend
+              git checkout ${{ github.event.inputs.FrontendReleaseTag }}
+              npm ci
+            working-directory: ${{ github.workspace }}
+
+          - name: Retrieve Backend Repository and build
+            run: |
+              git clone git@bitbucket-git:thinkrfsoftware/s1000_backend.git
+              pwd
+              cd s1000_backend
+              git checkout ${{ github.event.inputs.BackendReleaseTag }}
+              cmake -DCMAKE_PREFIX_PATH="/usr/local/Qt/6.5.3;/usr/local/lib/cmake/portaudio" -DPORTAUDIO_ROOT="/usr/local"
+              cmake --build . --config Release
+              cd ..
+            working-directory: ${{ github.workspace }}
+
+          - name: Retrieve libtrf Repository and build
+            run: |
+              git clone git@bitbucket-git:thinkrfsoftware/libtrf.git
+              cd libtrf
+              git checkout ${{ github.event.inputs.LibtrfReleaseTag }}
+              cp bin/linux/x86_64/libtrf.so ../s1000_backend/bin/linux
+              cp bin/linux/x86_64/libtrf.so ../s1000_backend/include
+              cd ..
+            working-directory: ${{ github.workspace }}
+
+          - name: Retrieve Installer Repository & Update installer.sh then create deb
+            run: |            
+              git clone git@bitbucket-git:thinkrfsoftware/installer.git
+              pwd
+              cd installer/packaging/linux/web 
+              # Replace the string PACKAGE+V="1.1.0" in installer.sh with the value of TAG_Version
+              sed -i "s/PACKAGE+V=\"1.1.0\"/PACKAGE+V=\"$TAG_Version\"/" installer.sh
+
+          - name: Upload Installer Artifact
+          uses: actions/upload-artifact@v2
+          with:
+            name: linux web installer
+            path: installer/packaging/linux/web/   # Specify the directory where the installer is created  
