@@ -21,7 +21,6 @@
               - unstable
               - testing
               - stable
-            
     env:
       QT_VERSION: '6.5.3'
       TAG_VERSION: ${{ github.event.inputs.BackendReleaseTag }}
@@ -299,6 +298,7 @@
               git checkout ${{ github.event.inputs.LibtrfReleaseTag }}
               cp bin/linux/x86_64/libtrf.so ../s1000_backend/bin/linux
               cp bin/linux/x86_64/libtrf.so ../s1000_backend/include
+              sudo cp bin/linux/x86_64/libtrf.so /usr/lib/
               cd ..
             working-directory: ${{ github.workspace }}
 
