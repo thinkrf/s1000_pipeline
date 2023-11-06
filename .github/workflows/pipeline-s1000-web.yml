@@ -257,10 +257,11 @@
             uses: actions/checkout@v2
 
           - name: Install Qt
-            uses: jurplel/install-qt-action@v3
+            uses: jurplel/install-qt-action@v3.3.0
             with:
-              qt-version: 6.5.3
-              platform: ubuntu
+              version: ${{ env.QT_VERSION }}
+              target: desktop
+              installDir: /usr/local/Qt/
 
 
           - name: Install dependencies
