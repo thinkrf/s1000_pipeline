@@ -27,8 +27,8 @@
       TAG_VERSION: ${{ github.event.inputs.BackendReleaseTag }}
 
     jobs:
-    build-and-push-image:s
-      runs-on: windows-latest
+      build-and-push-image:
+        runs-on: windows-latest
     
     permissions:
       contents: read
