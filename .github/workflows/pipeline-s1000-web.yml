@@ -167,7 +167,7 @@
               cmake .. -DCMAKE_INSTALL_PREFIX="C:/Program Files/websocketpp"
               cmake --build . --target install --config Release
               cd ../../..
-              cmake -DCMAKE_PREFIX_PATH="C:/Qt/6.5.2/msvc2019_64;C:/Program Files/portaudio/cmake/portaudio" -DBOOST_ROOT="C:/Program Files/boost/boost_1_80_0/boost_1_80_0" -DPORTAUDIO_ROOT="C:/Program Files/portaudio"
+              cmake -DCMAKE_PREFIX_PATH="C:/Qt/6.5.3/msvc2019_64;C:/Program Files/portaudio/cmake/portaudio" -DBOOST_ROOT="C:/Program Files/boost/boost_1_80_0/boost_1_80_0" -DPORTAUDIO_ROOT="C:/Program Files/portaudio"
               cmake --build . --config Release
               cd ..
 

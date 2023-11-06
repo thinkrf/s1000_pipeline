@@ -155,7 +155,7 @@
               cmake .. -DCMAKE_INSTALL_PREFIX="C:/Program Files/websocketpp"
               cmake --build . --target install --config Release
               cd ../../..
-              cmake -DCMAKE_PREFIX_PATH="C:/Qt/6.5.2/msvc2019_64;C:/Program Files/portaudio/cmake/portaudio" -DBOOST_ROOT="C:/Program Files/boost/boost_1_80_0/boost_1_80_0" -DPORTAUDIO_ROOT="C:/Program Files/portaudio"
+              cmake -DCMAKE_PREFIX_PATH="C:/Qt/6.5.3/msvc2019_64;C:/Program Files/portaudio/cmake/portaudio" -DBOOST_ROOT="C:/Program Files/boost/boost_1_80_0/boost_1_80_0" -DPORTAUDIO_ROOT="C:/Program Files/portaudio"
               cmake --build . --config Release
               cd ..
 
@@ -216,7 +216,7 @@
             run: |
               git clone https://github.com/PortAudio/portaudio.git
               cd portaudio
-              cmake .
+              cmake -DCMAKE_INSTALL_PREFIX=${{ github.workspace }}/portaudio-install .
               cmake --build . --target install --config Release
             working-directory: ${{ github.workspace }}
 
@@ -284,7 +284,7 @@
               pwd
               cd s1000_backend
               git checkout ${{ github.event.inputs.BackendReleaseTag }}
-              cmake -DCMAKE_PREFIX_PATH="/usr/local/Qt/6.5.3;/usr/local/lib/cmake/portaudio" -DPORTAUDIO_ROOT="/usr/local"
+              cmake -DCMAKE_PREFIX_PATH="${{ github.workspace }}/portaudio-install;/usr/local/Qt/6.5.3" -DPORTAUDIO_ROOT="${{ github.workspace }}/portaudio-install"
               cmake --build . --config Release
               cd ..
             working-directory: ${{ github.workspace }}
