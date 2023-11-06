@@ -1,7 +1,14 @@
     name: S1000 Installer Pipeline Web Version
     on:
       workflow_dispatch:
-        inputs:        
+        inputs:       
+          Environment:
+            description: 'Select the target environment'
+            required: true
+            default: 'windows'
+            options:
+              - windows
+              - linux 
           FrontendReleaseTag:
             description: 'The S1000 frontend tag that you would like to create a release. Ex: 1.3.0'     
             required: true  
@@ -27,7 +34,8 @@
       TAG_VERSION: ${{ github.event.inputs.BackendReleaseTag }}
 
     jobs:
-      build-and-push-image:
+      windows_build:
+        name: Windows Build
         runs-on: windows-latest
     
         permissions:
@@ -194,8 +202,10 @@
               name: installer
               path: installer/packaging/windows/web/Output/   # Specify the directory where the installer is created  
 
-      build-and-push-image:
-        runs-on: ubuntu-latest
+      ubuntu_build:
+        
+        name: "Ubuntu-20.04 Build"
+        runs-on: ubuntu-20.04
     
         permissions:
           contents: read

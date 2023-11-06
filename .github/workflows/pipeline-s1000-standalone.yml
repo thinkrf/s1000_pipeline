@@ -27,7 +27,8 @@
       TAG_VERSION: ${{ github.event.inputs.BackendReleaseTag }}
 
     jobs:
-      build-and-push-image:
+      windows_build:
+        name: "Windows Build"
         runs-on: windows-latest
     
         permissions:
@@ -194,9 +195,9 @@
               name: Windows standalone installer
               path: installer/packaging/windows/standalone/Output/   # Specify the directory where the installer is created  
 
-    build-and-push-image:
-        runs-on: ubuntu-latest
-    
+      ubuntu_build:
+        name: "Ubuntu 20.04 Build"
+        runs-on: ubuntu-20.04    
         permissions:
           contents: read
           packages: write
