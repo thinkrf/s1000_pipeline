@@ -108,7 +108,7 @@
           
             Write-Output "TAG_VERSION=$TAG_VERSION" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
             $INNO_SCRIPT = Get-Content -Path .\inno-setup.iss
-            $INNO_SCRIPT = $INNO_SCRIPT -replace "{#TagVersion}", "${TAG_VERSION}"
+            $INNO_SCRIPT = $INNO_SCRIPT -replace '#define TagVersion "(.*?)"', '#define TagVersion "$env:TAG_VERSION"'
             $INNO_SCRIPT | Out-File -FilePath .\inno-setup.iss -Encoding utf8
 
             & "C:\InnoSetup\ISCC.exe" .\inno-setup.iss
