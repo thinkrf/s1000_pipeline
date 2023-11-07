@@ -300,6 +300,9 @@
               cd installer/packaging/linux/standalone 
               # Replace the string PACKAGE+V="1.1.0" in installer.sh with the value of TAG_Version
               sed -i "s/PACKAGE+V=\"1.1.0\"/PACKAGE+V=\"$TAG_Version\"/" installer.sh
+              sudo cp installer.sh ${{ github.workspace }} 
+              cp  installer.sh ../../../..
+              cd ../../../..
               sudo ./installer.sh
 
           - name: Upload Installer Artifact
