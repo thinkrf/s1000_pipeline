@@ -2,12 +2,9 @@
     on:
       workflow_dispatch:
         inputs:        
-          FrontendReleaseTag:
-            description: 'The S1000 frontend tag that you would like to create a release. Ex: 1.3.0'     
-            required: true  
-          BackendReleaseTag:
-            description: 'The S1000 backend tag that you would like to create a release. Ex: 1.3.0'     
-            required: true    
+          S1000ReleaseTag:
+            description: 'The S1000 frontend and backend tag that you would like to create a release. Ex: 1.3.0'     
+            required: true   
           LibtrfReleaseTag:
             description: 'The S1000 libtrf tag that you would like to create a release. Ex: 1.3.0'     
             required: true   
@@ -24,7 +21,7 @@
       
     env:
       QT_VERSION: '6.5.3'
-      TAG_VERSION: ${{ github.event.inputs.BackendReleaseTag }}
+      TAG_VERSION: ${{ github.event.inputs.S1000ReleaseTag }}
 
     jobs:
       windows_build:
@@ -38,8 +35,8 @@
         steps:
           - name: Print Release Version
             run: |
-              echo "Backend Release ${{ github.event.inputs.BackendReleaseTag }}"
-              echo "Frontend Release ${{ github.event.inputs.FrontendReleaseTag }}"
+              echo "Backend Release ${{ github.event.inputs.S1000ReleaseTag }}"
+              echo "Frontend Release ${{ github.event.inputs.S1000ReleaseTag }}"
         
           - name: Get 7-Zip
             run: |
@@ -144,7 +141,7 @@
             run: |
               git clone git@bitbucket-git:thinkrfsoftware/s1000_frontend.git
               cd s1000_frontend
-              git checkout ${{ github.event.inputs.FrontendReleaseTag }}
+              git checkout ${{ github.event.inputs.S1000ReleaseTag }}
               npm ci
               npm run build-win64   
                 
@@ -152,7 +149,7 @@
             run: |
               git clone git@bitbucket-git:thinkrfsoftware/s1000_backend.git
               cd s1000_backend
-              git checkout ${{ github.event.inputs.BackendReleaseTag }}
+              git checkout ${{ github.event.inputs.S1000ReleaseTag }}
               cd ../
               cd s1000_backend\include
               git clone https://github.com/zaphoyd/websocketpp.git
@@ -212,8 +209,8 @@
         steps:
           - name: Print Release Version
             run: |
-              echo "Backend Release ${{ github.event.inputs.BackendReleaseTag }}"
-              echo "Frontend Release ${{ github.event.inputs.FrontendReleaseTag }}"
+              echo "Backend Release ${{ github.event.inputs.S1000ReleaseTag }}"
+              echo "Frontend Release ${{ github.event.inputs.S1000ReleaseTag }}"
 
           - name: Build and install PortAudio
             continue-on-error: true
@@ -263,7 +260,7 @@
             run: |
               git clone git@bitbucket-git:thinkrfsoftware/s1000_frontend.git
               cd s1000_frontend
-              git checkout ${{ github.event.inputs.FrontendReleaseTag }}
+              git checkout ${{ github.event.inputs.S1000ReleaseTag }}
               npm ci
               npm run build-linux  
             working-directory: ${{ github.workspace }}
@@ -273,7 +270,7 @@
               git clone git@bitbucket-git:thinkrfsoftware/s1000_backend.git
               pwd
               cd s1000_backend
-              git checkout ${{ github.event.inputs.BackendReleaseTag }}
+              git checkout ${{ github.event.inputs.S1000ReleaseTag }}
               cd ..
             working-directory: ${{ github.workspace }}
 
