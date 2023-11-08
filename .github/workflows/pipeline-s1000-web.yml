@@ -309,7 +309,10 @@
             run: |            
               git clone git@bitbucket-git:thinkrfsoftware/installer.git
               pwd
-              cd installer/packaging/linux/web 
+              cd installer/Images/
+              cp thinkrf_icon.ico ../..
+              cd ../..
+              cd installer/packaging/linux/standalone 
               # Replace the string PACKAGE+V="1.1.0" in installer.sh with the value of TAG_Version
               sed -i "s/PACKAGE+V=\"1.1.0\"/PACKAGE+V=\"$TAG_Version\"/" installer.sh
               cp  installer.sh ../../../..
@@ -319,5 +322,5 @@
           - name: Upload Installer Artifact
             uses: actions/upload-artifact@v2
             with:
-              name: linux web installer
-              path: installer/packaging/linux/web/s1000spectraware*   # Specify the directory where the installer is created  
+              name: linux standalone installer
+              path: ${{ github.workspace }}/s1000spectraware*   # Specify the directory where the installer is created 
