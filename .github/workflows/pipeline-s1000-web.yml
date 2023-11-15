@@ -313,11 +313,9 @@
               cp thinkrf_icon.ico ../..
               cd ../..
               cd installer/packaging/linux/standalone 
-              # Replace the string PACKAGE+V="1.1.0" in installer.sh with the value of TAG_Version
-              sed -i "s/PACKAGE+V=\"1.1.0\"/PACKAGE+V=\"$TAG_Version\"/" installer.sh
               cp  installer.sh ../../../..
               cd ../../../..
-              sudo ./installer.sh
+              sudo ./installer.sh "${{ env.TAG_VERSION }}"
 
           - name: Upload Installer Artifact
             uses: actions/upload-artifact@v2
