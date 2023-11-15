@@ -173,6 +173,7 @@
               cp bin/x64/libtrf.lib ../s1000_backend/bin/x64/Release
               cp bin/x64/libtrf.dll ../s1000_backend/include
               cp bin/x64/libtrf.lib ../s1000_backend/include
+              cp source/inc/libtrf.h ../s1000_backend/include
               cd ..
 
           - name: Download Inno Setup Compiler
@@ -281,6 +282,7 @@
               git checkout ${{ github.event.inputs.LibtrfReleaseTag }}
               cp bin/linux/x86_64/libtrf.so ../s1000_backend/bin/linux
               cp bin/linux/x86_64/libtrf.so ../s1000_backend/include
+              cp source/inc/libtrf.h ../s1000_backend/include
               sudo cp bin/linux/x86_64/libtrf.so /usr/lib/
               cd ..
             working-directory: ${{ github.workspace }}
