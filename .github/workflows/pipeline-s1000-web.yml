@@ -1,4 +1,4 @@
-    name: S1000 Installer Pipeline Web Version (windows and ubuntu)
+    name: S1000 Web Version (windows and ubuntu)
     on:
       workflow_dispatch:
         inputs:        
