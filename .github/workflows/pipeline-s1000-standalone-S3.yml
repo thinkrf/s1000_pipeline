@@ -222,14 +222,16 @@ jobs:
 
       - name: Upload Artifact to S3
         run: |
-          aws s3 cp installer/packaging/windows/standalone/Output/* s3://thinkrf-s1000/x64/
-      
-      - name: Upload Installer Artifact
+          aws s3 cp ${{ github.workspace }}/installer/packaging/windows/standalone/Output/S1000* s3://thinkrf-s1000/x64/
+
+        working-directory: ${{ github.workspace }}
+
+      - name: Upload Artifact To GitHub
         uses: actions/upload-artifact@v2
         with:
           name: Windows standalone installer
           path: installer/packaging/windows/standalone/Output/   # Specify the directory where the installer is created  
-
+  
   ubuntu_build:
     name: "Ubuntu 20.04 Build"
     runs-on: ubuntu-20.04    
@@ -347,7 +349,7 @@ jobs:
         run: |
           aws s3 cp ${{ github.workspace }}/s1000spectraware* s3://thinkrf-s1000/linux/
           
-      - name: Upload Installer Artifact
+      - name: Upload  Artifact to GitHub
         uses: actions/upload-artifact@v2
         with:
           name: linux standalone installer
