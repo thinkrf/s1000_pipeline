@@ -6,7 +6,7 @@
 #  @file        pipeline-s1000-standalone-s3
 #  @author      Aly Khedr
 #  @brief       Pipeline to create S1000 installer (standalone)
-#               Uses S3 to retreive artifacts of S3
+#               Uses S3 to retreive artifacts of libtrf
 #**************************************************************** 
 #****************************************************************
 #
@@ -182,7 +182,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_CLIENT_SECRET }}
           aws-region: us-east-2
 
-      - name: Retrieve libtrf Repository
+      - name: Retrieve libtrf Repository from S3
         run: |
           aws s3 cp s3://thinkrf-component-libtrf-library/${{ github.event.inputs.LibtrfReleaseTag }}/libtrf.h 
           aws s3 cp s3://thinkrf-component-libtrf-library/${{ github.event.inputs.LibtrfReleaseTag }}/x64/libtrf.lib 
@@ -220,6 +220,10 @@ jobs:
 
           & "C:\InnoSetup\ISCC.exe" .\inno-setup.iss
 
+      - name: Upload Artifact to S3
+        run: |
+          aws s3 cp installer/packaging/windows/standalone/Output/* s3://thinkrf-s1000/x64/
+      
       - name: Upload Installer Artifact
         uses: actions/upload-artifact@v2
         with:
@@ -308,7 +312,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_CLIENT_SECRET }}
           aws-region: us-east-2
 
-      - name: Retrieve libtrf Repository from s3
+      - name: Retrieve libtrf Repository from S3
         run: |
           aws s3 cp s3://thinkrf-component-libtrf-library/${{ github.event.inputs.LibtrfReleaseTag }}/libtrf.h 
           aws s3 cp s3://thinkrf-component-libtrf-library/${{ github.event.inputs.LibtrfReleaseTag }}/linux/x86_64/libtrf.so 
@@ -338,7 +342,11 @@ jobs:
           cp  installer.sh ../../../..
           cd ../../../..
           sudo ./installer.sh "${{ env.TAG_VERSION }}"
-
+      
+      - name: Upload Artifact to S3
+        run: |
+          aws s3 cp ${{ github.workspace }}/s1000spectraware* s3://thinkrf-s1000/linux/
+          
       - name: Upload Installer Artifact
         uses: actions/upload-artifact@v2
         with:
