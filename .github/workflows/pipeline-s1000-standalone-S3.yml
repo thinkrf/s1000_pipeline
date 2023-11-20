@@ -184,9 +184,9 @@ jobs:
 
       - name: Retrieve libtrf Repository from S3
         run: |
-          aws s3 cp s3://thinkrf-component-libtrf-library/${{ github.event.inputs.LibtrfReleaseTag }}/libtrf.h 
-          aws s3 cp s3://thinkrf-component-libtrf-library/${{ github.event.inputs.LibtrfReleaseTag }}/x64/libtrf.lib 
-          aws s3 cp s3://thinkrf-component-libtrf-library/${{ github.event.inputs.LibtrfReleaseTag }}/x64/libtrf.dll 
+          aws s3 cp s3://thinkrf-component-libtrf-library/${{ github.event.inputs.LibtrfReleaseTag }}/libtrf.h ${{ github.workspace }}
+          aws s3 cp s3://thinkrf-component-libtrf-library/${{ github.event.inputs.LibtrfReleaseTag }}/x64/libtrf.lib ${{ github.workspace }}
+          aws s3 cp s3://thinkrf-component-libtrf-library/${{ github.event.inputs.LibtrfReleaseTag }}/x64/libtrf.dll ${{ github.workspace }}
           cp libtrf.dll s1000_backend/bin/x64/Release
           cp libtrf.lib s1000_backend/bin/x64/Release
           cp libtrf.dll s1000_backend/include
@@ -314,8 +314,8 @@ jobs:
 
       - name: Retrieve libtrf Repository from S3
         run: |
-          aws s3 cp s3://thinkrf-component-libtrf-library/${{ github.event.inputs.LibtrfReleaseTag }}/libtrf.h 
-          aws s3 cp s3://thinkrf-component-libtrf-library/${{ github.event.inputs.LibtrfReleaseTag }}/linux/x86_64/libtrf.so 
+          aws s3 cp s3://thinkrf-component-libtrf-library/${{ github.event.inputs.LibtrfReleaseTag }}/libtrf.h ${{ github.workspace }}
+          aws s3 cp s3://thinkrf-component-libtrf-library/${{ github.event.inputs.LibtrfReleaseTag }}/linux/x86_64/libtrf.so ${{ github.workspace }}
           cp libtrf.so s1000_backend/bin/linux
           cp libtrf.so s1000_backend/include
           cp libtrf.h  s1000_backend/include
