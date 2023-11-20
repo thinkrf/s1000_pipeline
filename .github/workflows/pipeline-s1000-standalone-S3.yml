@@ -1,4 +1,17 @@
-name: S1000 Standalone
+#
+#****************************************************************
+#  Deployment
+#  Code Copyright (C) 2020-2021 ThinkRF Incorporated. All Rights Reserved.
+#****************************************************************
+#  @file        pipeline-s1000-standalone-s3
+#  @author      Aly Khedr
+#  @brief       Pipeline to create S1000 installer (standalone)
+#               Uses S3 to retreive artifacts of S3
+#**************************************************************** 
+#****************************************************************
+#
+
+name: S1000 Standalone - S3
 on:
   workflow_dispatch:
     inputs:        

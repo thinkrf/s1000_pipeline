@@ -1,3 +1,14 @@
+ #
+#****************************************************************
+#  Deployment
+#  Code Copyright (C) 2020-2021 ThinkRF Incorporated. All Rights Reserved.
+#****************************************************************
+#  @file        pipeline-s1000-standalone
+#  @author      Aly Khedr
+#  @brief       Pipeline to create S1000 installer 
+#**************************************************************** 
+#****************************************************************
+# 
     name: S1000 Standalone
     on:
       workflow_dispatch:
