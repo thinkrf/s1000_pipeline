@@ -1,0 +1,333 @@
+name: S1000 Standalone
+on:
+  workflow_dispatch:
+    inputs:        
+      S1000ReleaseTag:
+        description: 'The S1000 frontend and backend tag that you would like to create a release. Ex: 1.3.0'     
+        required: true   
+      LibtrfReleaseTag:
+        description: 'The S1000 libtrf tag that you would like to create a release. Ex: 1.3.0'     
+        required: true   
+      ChangelogComment:
+        description: 'A sentence or short paragraph describing the important changes since the last packaging'
+        required: true
+      Stability:
+        type: choice
+        description: 'The stability of the built version (based on the amount of testing)'
+        options:
+          - unstable
+          - testing
+          - stable
+  
+env:
+  QT_VERSION: '6.5.3'
+  TAG_VERSION: ${{ github.event.inputs.S1000ReleaseTag }}
+
+jobs:
+  windows_build:
+    name: "Windows Build"
+    runs-on: windows-latest
+
+    permissions:
+      contents: read
+      packages: write
+      
+    steps:
+      - name: Print Release Version
+        run: |
+          echo "Backend Release ${{ github.event.inputs.S1000ReleaseTag }}"
+          echo "Frontend Release ${{ github.event.inputs.S1000ReleaseTag }}"
+    
+      - name: Get 7-Zip
+        run: |
+          Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+          choco install 7zip
+
+
+      - name: Build and install PortAudio
+        continue-on-error: true
+        run: |
+          git clone https://github.com/PortAudio/portaudio.git
+          cd portaudio
+          mkdir build 
+          cd build
+          cmake .. -DCMAKE_INSTALL_PREFIX="C:/Program Files/portaudio"
+          cmake --build . --target install --config Release
+          cd ..\..\..\..
+        
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v3.3.0
+        with:
+          version: ${{ env.QT_VERSION }}
+          target: desktop
+          installDir: C:\Qt
+
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+
+
+      - name: Install Bitbucket SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.BITBUCKET_SSH_PRIVATE_KEY }}
+          name: id_rsa_bit
+          known_hosts: ${{ secrets.KNOWN_HOSTS_BITBUCKET }}
+          config: |
+            Host bitbucket-git
+              HostName bitbucket.org
+              IdentityFile ~/.ssh/id_rsa_bit
+          if_key_exists: replace
+
+      - name: Check Boost cache on Windows
+        id: check-boost-cache
+        run: |
+          if (Test-Path "C:\Program Files\boost\boost_1_80_0" -PathType Container) {
+            Write-Host "Boost cache exists"
+            echo "::set-output name=boost-cache-exists::true"
+          }
+          else {
+            Write-Host "Boost cache doesn't exist"
+            echo "::set-output name=boost-cache-exists::false"
+          }
+        shell: powershell
+
+      - name: Cache Boost installation
+        if: steps.check-boost-cache.outputs.boost-cache-exists == 'false'
+        uses: actions/cache@v2
+        with:
+          path: |
+            C:\Program Files\boost\boost_1_80_0
+          key: windows-Boost-1.80.0
+
+      - name: Get Boost
+        if: steps.check-boost-cache.outputs.boost-cache-exists == 'false'
+        run: |
+          Invoke-WebRequest -OutFile boost.zip -Uri https://boostorg.jfrog.io/artifactory/main/release/1.80.0/source/boost_1_80_0.zip
+          7z x boost.zip -o"C:\Program Files\boost\boost_1_80_0"      
+          cd "C:\Program Files\boost\boost_1_80_0\boost_1_80_0"
+          .\bootstrap.bat
+          .\b2.exe
+          cd C:\Users\runneradmin
+
+      - name: Checkout code
+        if: steps.check-boost-cache.outputs.boost-cache-exists == 'false'
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.x
+
+      - name: Install required Python packages
+        run: pip install pyyaml
+
+      - name: Install Bitbucket SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.BITBUCKET_SSH_PRIVATE_KEY }}
+          name: id_rsa_bit
+          known_hosts: ${{ secrets.KNOWN_HOSTS_BITBUCKET }}
+          config: |
+            Host bitbucket-git
+              HostName bitbucket.org
+              IdentityFile ~/.ssh/id_rsa_bit
+          if_key_exists: replace
+          
+
+      - name: Retrieve Frontend Repository 
+        run: |
+          git clone git@bitbucket-git:thinkrfsoftware/s1000_frontend.git
+          cd s1000_frontend
+          git checkout ${{ github.event.inputs.S1000ReleaseTag }}
+          npm ci
+          npm run build-win64   
+            
+      - name: Retrieve Backend Repository
+        run: |
+          git clone git@bitbucket-git:thinkrfsoftware/s1000_backend.git
+          cd s1000_backend
+          git checkout ${{ github.event.inputs.S1000ReleaseTag }}
+          cd ../
+          cd s1000_backend\include
+          git clone https://github.com/zaphoyd/websocketpp.git
+          cd websocketpp
+          mkdir build 
+          cd build
+          cmake .. -DCMAKE_INSTALL_PREFIX="C:/Program Files/websocketpp"
+          cmake --build . --target install --config Release
+          cd ../../..
+        working-directory: ${{ github.workspace }}
+
+      - name: Setup AWS CLI
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_CLIENT_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_CLIENT_SECRET }}
+          aws-region: us-east-2
+
+      - name: Retrieve libtrf Repository
+        run: |
+          aws s3 cp s3://thinkrf-component-libtrf-library/${{ github.event.inputs.LibtrfReleaseTag }}/libtrf.h 
+          aws s3 cp s3://thinkrf-component-libtrf-library/${{ github.event.inputs.LibtrfReleaseTag }}/x64/libtrf.lib 
+          aws s3 cp s3://thinkrf-component-libtrf-library/${{ github.event.inputs.LibtrfReleaseTag }}/x64/libtrf.dll 
+          cp libtrf.dll s1000_backend/bin/x64/Release
+          cp libtrf.lib s1000_backend/bin/x64/Release
+          cp libtrf.dll s1000_backend/include
+          cp libtrf.lib s1000_backend/include
+          cp libtrf.h s1000_backend/include
+        working-directory: ${{ github.workspace }}
+
+      - name: Build backend     
+        run: |
+          cd s1000_backend 
+          cmake -DCMAKE_PREFIX_PATH="C:/Qt/6.5.3/msvc2019_64;C:/Program Files/portaudio/cmake/portaudio" -DBOOST_ROOT="C:/Program Files/boost/boost_1_80_0/boost_1_80_0" -DPORTAUDIO_ROOT="C:/Program Files/portaudio"
+          cmake --build . --config Release
+          cd ..
+        working-directory: ${{ github.workspace }}
+
+      - name: Download Inno Setup Compiler
+        run: Invoke-WebRequest -Uri "http://www.jrsoftware.org/download.php/is.exe" -OutFile ".\is.exe"
+
+      - name: Install Inno Setup Compiler
+        run: Start-Process -FilePath .\is.exe -ArgumentList "/SP- /VERYSILENT /DIR=C:\InnoSetup" -Wait
+
+      - name: Retrieve Installer Repository & Update Inno Setup script
+        run: |            
+          git clone git@bitbucket-git:thinkrfsoftware/installer.git
+          dir
+          cd installer/packaging/windows/standalone 
+          Write-Output "TAG_VERSION=$TAG_VERSION" | Out-File -FilePath "$env:GITHUB_ENV" -Encoding utf8 -Append
+          $INNO_SCRIPT = Get-Content -Path .\inno-setup.iss
+          $INNO_SCRIPT = $INNO_SCRIPT -replace '#define TagVersion "(.*?)"', "#define TagVersion `"$env:TAG_VERSION`""
+          $INNO_SCRIPT | Out-File -FilePath .\inno-setup.iss -Encoding utf8
+
+          & "C:\InnoSetup\ISCC.exe" .\inno-setup.iss
+
+      - name: Upload Installer Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: Windows standalone installer
+          path: installer/packaging/windows/standalone/Output/   # Specify the directory where the installer is created  
+
+  ubuntu_build:
+    name: "Ubuntu 20.04 Build"
+    runs-on: ubuntu-20.04    
+    permissions:
+      contents: read
+      packages: write
+      
+    steps:
+      - name: Print Release Version
+        run: |
+          echo "Backend Release ${{ github.event.inputs.S1000ReleaseTag }}"
+          echo "Frontend Release ${{ github.event.inputs.S1000ReleaseTag }}"
+
+      - name: Build and install PortAudio
+        continue-on-error: true
+        run: |
+          git clone https://github.com/PortAudio/portaudio.git
+          cd portaudio
+          cmake -DCMAKE_INSTALL_PREFIX=${{ github.workspace }}/portaudio-install .
+          sudo cmake --build . --target install --config Release
+
+        working-directory: ${{ github.workspace }}
+
+      - name: Install Bitbucket SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.BITBUCKET_SSH_PRIVATE_KEY }}
+          name: id_rsa_bit
+          known_hosts: ${{ secrets.KNOWN_HOSTS_BITBUCKET }}
+          config: |
+            Host bitbucket-git
+              HostName bitbucket.org
+              IdentityFile ~/.ssh/id_rsa_bit
+          if_key_exists: replace
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v3.3.0
+        with:
+          version: ${{ env.QT_VERSION }}
+          target: desktop
+          installDir: /usr/local/Qt/
+      
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential   
+          sudo apt-get install -y libwebsocketpp-dev
+          sudo apt-get install -y libboost-all-dev
+          sudo apt-get install -y libpng16-16
+          sudo apt-get install -y libfontconfig
+          sudo apt install -y libx11-dev libxcb1-dev libxkbcommon-x11-dev libgl1-mesa-dev libpulse-dev libasound2-dev libfontconfig1-dev libfreetype6-dev libssl-dev
+          sudo apt-get install alsa-utils
+          sudo apt-get install wmctrl
+          sudo apt-get install -y libasound-dev portaudio19-dev libportaudio2 libportaudiocpp0
+          sudo apt-get install ffmpeg
+          sudo apt-get install -y libgl1-mesa-glx
+
+      - name: Retrieve Frontend Repository 
+        run: |
+          git clone git@bitbucket-git:thinkrfsoftware/s1000_frontend.git
+          cd s1000_frontend
+          git checkout ${{ github.event.inputs.S1000ReleaseTag }}
+          npm ci
+          npm run build-linux  
+        working-directory: ${{ github.workspace }}
+
+      - name: Retrieve Backend Repository 
+        run: |
+          git clone git@bitbucket-git:thinkrfsoftware/s1000_backend.git
+          pwd
+          cd s1000_backend
+          git checkout ${{ github.event.inputs.S1000ReleaseTag }}
+          cd ..
+        working-directory: ${{ github.workspace }}
+
+      - name: Setup AWS CLI
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_CLIENT_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_CLIENT_SECRET }}
+          aws-region: us-east-2
+
+      - name: Retrieve libtrf Repository from s3
+        run: |
+          aws s3 cp s3://thinkrf-component-libtrf-library/${{ github.event.inputs.LibtrfReleaseTag }}/libtrf.h 
+          aws s3 cp s3://thinkrf-component-libtrf-library/${{ github.event.inputs.LibtrfReleaseTag }}/linux/x86_64/libtrf.so 
+          cp libtrf.so s1000_backend/bin/linux
+          cp libtrf.so s1000_backend/include
+          cp libtrf.h  s1000_backend/include
+          sudo cp libtrf.so /usr/lib/
+          
+        working-directory: ${{ github.workspace }}
+
+      - name: Build Backend Repository 
+        run: |
+          cd s1000_backend
+          cmake -DCMAKE_PREFIX_PATH="${{ github.workspace }}/Qt/6.5.3/gcc_64/cmake;${{ github.workspace }}/portaudio-install/lib/cmake" -DPORTAUDIO_ROOT="${{ github.workspace }}/portaudio-install"
+          cmake --build . --config Release
+          cd ..
+        working-directory: ${{ github.workspace }}
+
+      - name: Retrieve Installer Repository & Update installer.sh then create deb
+        run: |            
+          git clone git@bitbucket-git:thinkrfsoftware/installer.git
+          pwd
+          cd installer/Images/
+          cp thinkrf_icon.ico ../..
+          cd ../..
+          cd installer/packaging/linux/standalone 
+          cp  installer.sh ../../../..
+          cd ../../../..
+          sudo ./installer.sh "${{ env.TAG_VERSION }}"
+
+      - name: Upload Installer Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: linux standalone installer
+          path: ${{ github.workspace }}/s1000spectraware*   # Specify the directory where the installer is created  

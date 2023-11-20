@@ -145,7 +145,7 @@
               npm ci
               npm run build-win64   
                 
-          - name: Retrieve Backend Repository and build
+          - name: Retrieve Backend Repository
             run: |
               git clone git@bitbucket-git:thinkrfsoftware/s1000_backend.git
               cd s1000_backend
@@ -159,13 +159,10 @@
               cmake .. -DCMAKE_INSTALL_PREFIX="C:/Program Files/websocketpp"
               cmake --build . --target install --config Release
               cd ../../..
-              cmake -DCMAKE_PREFIX_PATH="C:/Qt/6.5.3/msvc2019_64;C:/Program Files/portaudio/cmake/portaudio" -DBOOST_ROOT="C:/Program Files/boost/boost_1_80_0/boost_1_80_0" -DPORTAUDIO_ROOT="C:/Program Files/portaudio"
-              cmake --build . --config Release
-              cd ..
+            working-directory: ${{ github.workspace }}
 
-          - name: Retrieve libtrf Repository and build
+          - name: Retrieve libtrf Repository
             run: |
-            
               git clone git@bitbucket-git:thinkrfsoftware/libtrf.git
               cd libtrf
               git checkout ${{ github.event.inputs.LibtrfReleaseTag }}
@@ -174,7 +171,15 @@
               cp bin/x64/libtrf.dll ../s1000_backend/include
               cp bin/x64/libtrf.lib ../s1000_backend/include
               cp source/inc/libtrf.h ../s1000_backend/include
+            working-directory: ${{ github.workspace }}
+
+          - name: Build backend     
+            run: |
+              cd s1000_backend 
+              cmake -DCMAKE_PREFIX_PATH="C:/Qt/6.5.3/msvc2019_64;C:/Program Files/portaudio/cmake/portaudio" -DBOOST_ROOT="C:/Program Files/boost/boost_1_80_0/boost_1_80_0" -DPORTAUDIO_ROOT="C:/Program Files/portaudio"
+              cmake --build . --config Release
               cd ..
+            working-directory: ${{ github.workspace }}
 
           - name: Download Inno Setup Compiler
             run: Invoke-WebRequest -Uri "http://www.jrsoftware.org/download.php/is.exe" -OutFile ".\is.exe"
@@ -220,7 +225,6 @@
               cd portaudio
               cmake -DCMAKE_INSTALL_PREFIX=${{ github.workspace }}/portaudio-install .
               sudo cmake --build . --target install --config Release
-
             working-directory: ${{ github.workspace }}
 
           - name: Install Bitbucket SSH key
@@ -275,7 +279,7 @@
               cd ..
             working-directory: ${{ github.workspace }}
 
-          - name: Retrieve libtrf Repository and build
+          - name: Retrieve libtrf Repository from S3
             run: |
               git clone git@bitbucket-git:thinkrfsoftware/libtrf.git
               cd libtrf
