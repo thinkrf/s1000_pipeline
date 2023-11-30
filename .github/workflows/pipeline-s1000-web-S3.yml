@@ -323,6 +323,7 @@ jobs:
           cd installer/packaging/linux/web 
           cp  installer.sh ../../../..
           cd ../../../..
+          chmod +x installer.sh
           sudo ./installer.sh "${{ env.TAG_VERSION }}"
       
       - name: Upload Artifact to S3
