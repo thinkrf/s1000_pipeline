@@ -213,7 +213,7 @@ jobs:
       - name: Upload Artifact to S3
       
         run: |
-          aws s3 cp ${{ github.workspace }}/installer/packaging/windows/web/Output/S1000_Spectraware_* s3://thinkrf-s1000/x64/
+          aws s3 cp ${{ github.workspace }}/installer/packaging/windows/web/Output/S1000_Spectraware_${{ github.event.inputs.S1000ReleaseTag }}_Web_x64.exe s3://thinkrf-s1000/x64/
         working-directory: ${{ github.workspace }}
 
       - name: Upload Artifact To GitHub
