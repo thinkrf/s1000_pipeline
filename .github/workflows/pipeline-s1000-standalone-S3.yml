@@ -233,8 +233,8 @@ jobs:
           path: installer/packaging/windows/standalone/Output/   # Specify the directory where the installer is created  
   
   ubuntu_build:
-    name: "Ubuntu 20.04 Build"
-    runs-on: ubuntu-20.04    
+    name: "Ubuntu Build"
+    runs-on: ubuntu-latest    
     permissions:
       contents: read
       packages: write
