@@ -149,7 +149,7 @@ jobs:
             
       - name: Retrieve Backend Repository
         run: |
-          git clone git@bitbucket-git:thinkrfsoftware/s1000_backend.git
+          git clone git@bitbucket-git:thinkrfsoftware/s1000_backend_old.git
           cd s1000_backend
           git checkout ${{ github.event.inputs.S1000ReleaseTag }}
           cd ../
@@ -264,7 +264,7 @@ jobs:
 
       - name: Retrieve Backend Repository 
         run: |
-          git clone git@bitbucket-git:thinkrfsoftware/s1000_backend.git
+          git clone git@bitbucket-git:thinkrfsoftware/s1000_backend_old.git
           pwd
           cd s1000_backend
           git checkout ${{ github.event.inputs.S1000ReleaseTag }}
