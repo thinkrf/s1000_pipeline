@@ -152,10 +152,10 @@ jobs:
       - name: Retrieve Backend Repository
         run: |
           git clone git@bitbucket-git:thinkrfsoftware/s1000_backend_old.git
-          cd s1000_backend
+          cd s1000_backend_old
           git checkout ${{ github.event.inputs.S1000ReleaseTag }}
           cd ../
-          cd s1000_backend\include
+          cd s1000_backend_old\include
           git clone https://github.com/zaphoyd/websocketpp.git
           cd websocketpp
           mkdir build 
@@ -177,16 +177,16 @@ jobs:
           aws s3 cp s3://thinkrf-component-libtrf-library/${{ github.event.inputs.LibtrfReleaseTag }}/libtrf.h ${{ github.workspace }}
           aws s3 cp s3://thinkrf-component-libtrf-library/${{ github.event.inputs.LibtrfReleaseTag }}/x64/libtrf.lib ${{ github.workspace }}
           aws s3 cp s3://thinkrf-component-libtrf-library/${{ github.event.inputs.LibtrfReleaseTag }}/x64/libtrf.dll ${{ github.workspace }}
-          cp libtrf.dll s1000_backend/bin/x64/Release
-          cp libtrf.lib s1000_backend/bin/x64/Release
-          cp libtrf.dll s1000_backend/include
-          cp libtrf.lib s1000_backend/include
-          cp libtrf.h s1000_backend/include
+          cp libtrf.dll s1000_backend_old/bin/x64/Release
+          cp libtrf.lib s1000_backend_old/bin/x64/Release
+          cp libtrf.dll s1000_backend_old/include
+          cp libtrf.lib s1000_backend_old/include
+          cp libtrf.h s1000_backend_old/include
         working-directory: ${{ github.workspace }}
 
       - name: Build backend     
         run: |
-          cd s1000_backend 
+          cd s1000_backend_old 
           cmake -DCMAKE_PREFIX_PATH="C:/Qt/6.5.3/msvc2019_64;C:/Program Files/portaudio/cmake/portaudio" -DBOOST_ROOT="C:/Program Files/boost/boost_1_80_0/boost_1_80_0" -DPORTAUDIO_ROOT="C:/Program Files/portaudio"
           cmake --build . --config Release
           cd ..
@@ -282,7 +282,7 @@ jobs:
         run: |
           git clone git@bitbucket-git:thinkrfsoftware/s1000_backend_old.git
           pwd
-          cd s1000_backend
+          cd s1000_backend_old
           git checkout ${{ github.event.inputs.S1000ReleaseTag }}
           cd ..
         working-directory: ${{ github.workspace }}
@@ -298,16 +298,16 @@ jobs:
         run: |
           aws s3 cp s3://thinkrf-component-libtrf-library/${{ github.event.inputs.LibtrfReleaseTag }}/libtrf.h ${{ github.workspace }}
           aws s3 cp s3://thinkrf-component-libtrf-library/${{ github.event.inputs.LibtrfReleaseTag }}/linux/x86_64/libtrf.so ${{ github.workspace }}
-          cp libtrf.so s1000_backend/bin/linux
-          cp libtrf.so s1000_backend/include
-          cp libtrf.h  s1000_backend/include
+          cp libtrf.so s1000_backend_old/bin/linux
+          cp libtrf.so s1000_backend_old/include
+          cp libtrf.h  s1000_backend_old/include
           sudo cp libtrf.so /usr/lib/
           
         working-directory: ${{ github.workspace }}
 
       - name: Build Backend Repository 
         run: |
-          cd s1000_backend
+          cd s1000_backend_old
           cmake -DCMAKE_PREFIX_PATH="${{ github.workspace }}/Qt/6.5.3/gcc_64/cmake;${{ github.workspace }}/portaudio-install/lib/cmake" -DPORTAUDIO_ROOT="${{ github.workspace }}/portaudio-install"
           cmake --build . --config Release
           cd ..
