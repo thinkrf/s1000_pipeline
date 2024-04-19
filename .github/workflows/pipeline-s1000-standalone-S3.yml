@@ -187,6 +187,8 @@ jobs:
 
       - name: Retrieve libtrf Repository from S3
         run: |
+          echo "MY_VARIABLE=${{ secrets.AWS_CLIENT_KEY }}" >> ${{ secrets.AWS_CLIENT_KEY }}
+          echo "MY_VARIABLE=${{ secrets.AWS_CLIENT_SECRET }}" >> ${{ secrets.AWS_CLIENT_SECRET }}
           aws s3 cp s3://thinkrf-component-libtrf-library/${{ github.event.inputs.LibtrfReleaseTag }}/libtrf.h ${{ github.workspace }}
           aws s3 cp s3://thinkrf-component-libtrf-library/${{ github.event.inputs.LibtrfReleaseTag }}/x64/libtrf.lib ${{ github.workspace }}
           aws s3 cp s3://thinkrf-component-libtrf-library/${{ github.event.inputs.LibtrfReleaseTag }}/x64/libtrf.dll ${{ github.workspace }}
