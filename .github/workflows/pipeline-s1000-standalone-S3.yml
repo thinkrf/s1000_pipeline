@@ -98,6 +98,18 @@ jobs:
               IdentityFile ~/.ssh/id_rsa_bit
           if_key_exists: replace
 
+      - name: Setup AWS CLI
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_CLIENT_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_CLIENT_SECRET }}
+          aws-region: us-east-2
+
+      - name: Print AWS Access
+        run: |
+          echo "MY_VARIABLE=${{ secrets.AWS_CLIENT_KEY }}" >> ${{ secrets.AWS_CLIENT_KEY }}
+          echo "MY_VARIABLE=${{ secrets.AWS_CLIENT_SECRET }}" >> ${{ secrets.AWS_CLIENT_SECRET }}
+      
       - name: Check Boost cache on Windows
         id: check-boost-cache
         run: |
@@ -110,6 +122,7 @@ jobs:
             echo "::set-output name=boost-cache-exists::false"
           }
         shell: powershell
+
 
       - name: Cache Boost installation
         if: steps.check-boost-cache.outputs.boost-cache-exists == 'false'
@@ -178,17 +191,8 @@ jobs:
           cd ../../..
         working-directory: ${{ github.workspace }}
 
-      - name: Setup AWS CLI
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_CLIENT_KEY }}
-          aws-secret-access-key: ${{ secrets.AWS_CLIENT_SECRET }}
-          aws-region: us-east-2
-
       - name: Retrieve libtrf Repository from S3
         run: |
-          echo "MY_VARIABLE=${{ secrets.AWS_CLIENT_KEY }}" >> ${{ secrets.AWS_CLIENT_KEY }}
-          echo "MY_VARIABLE=${{ secrets.AWS_CLIENT_SECRET }}" >> ${{ secrets.AWS_CLIENT_SECRET }}
           aws s3 cp s3://thinkrf-component-libtrf-library/${{ github.event.inputs.LibtrfReleaseTag }}/libtrf.h ${{ github.workspace }}
           aws s3 cp s3://thinkrf-component-libtrf-library/${{ github.event.inputs.LibtrfReleaseTag }}/x64/libtrf.lib ${{ github.workspace }}
           aws s3 cp s3://thinkrf-component-libtrf-library/${{ github.event.inputs.LibtrfReleaseTag }}/x64/libtrf.dll ${{ github.workspace }}
