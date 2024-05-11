@@ -152,11 +152,11 @@ jobs:
             
       - name: Retrieve Backend Repository
         run: |
-          git clone git@bitbucket-git:thinkrfsoftware/s1000_backend_old.git
-          cd s1000_backend_old
+          git clone git@bitbucket-git:thinkrfsoftware/s1000_backend.git
+          cd s1000_backend
           git checkout ${{ github.event.inputs.BackendReleaseTag }}
           cd ../
-          cd s1000_backend_old\include
+          cd s1000_backend\include
           git clone https://github.com/zaphoyd/websocketpp.git
           cd websocketpp
           mkdir build 
@@ -171,18 +171,21 @@ jobs:
           git clone git@bitbucket-git:thinkrfsoftware/libtrf.git
           cd libtrf
           git checkout ${{ github.event.inputs.LibtrfReleaseTag }}
-          cp bin/x64/libtrf.dll ../s1000_backend_old/bin/x64/Release
-          cp bin/x64/libtrf.lib ../s1000_backend_old/bin/x64/Release
-          cp bin/x64/libtrf.dll ../s1000_backend_old/include
-          cp bin/x64/libtrf.lib ../s1000_backend_old/include
-          cp source/inc/libtrf.h ../s1000_backend_old/include
+          cp bin/x64/libtrf.dll ../s1000_backend/bin/x64/Release
+          cp bin/x64/libtrf.lib ../s1000_backend/bin/x64/Release
+          cp bin/x64/libtrf.dll ../s1000_backend/include
+          cp bin/x64/libtrf.lib ../s1000_backend/include
+          cp source/inc/libtrf.h ../s1000_backend/include
         working-directory: ${{ github.workspace }}
 
       - name: Build backend     
         run: |
-          cd s1000_backend_old 
-          cmake -DCMAKE_PREFIX_PATH="C:/Qt/6.5.3/msvc2019_64;C:/Program Files/portaudio/cmake/portaudio" -DBOOST_ROOT="C:/Program Files/boost/boost_1_80_0/boost_1_80_0" -DPORTAUDIO_ROOT="C:/Program Files/portaudio"
+          cd s1000_backend 
+          mkdir build
+          cd build
+          cmake .. -DCMAKE_PREFIX_PATH="C:/Qt/6.5.3/msvc2019_64;C:/Program Files/portaudio/cmake/portaudio;C:/Program Files/websocketpp/cmake" -DBOOST_ROOT="C:/Program Files/boost/boost_1_80_0/boost_1_80_0" -DPORTAUDIO_ROOT="C:/Program Files/portaudio" -DQt6CoreDir="C:/Qt/6.5.3/msvc2019_64"  -DWEBSOCKETPP_DIR="C:/Program Files/websocketpp" -DUSE_WEBSOCKET=ON  -DWEBSOCKET=ON
           cmake --build . --config Release
+          cd ..
           cd ..
         working-directory: ${{ github.workspace }}
 
@@ -267,9 +270,9 @@ jobs:
 
       - name: Retrieve Backend Repository 
         run: |
-          git clone git@bitbucket-git:thinkrfsoftware/s1000_backend_old.git
+          git clone git@bitbucket-git:thinkrfsoftware/s1000_backend.git
           pwd
-          cd s1000_backend_old
+          cd s1000_backend
           git checkout ${{ github.event.inputs.BackendReleaseTag }}
           cd ..
         working-directory: ${{ github.workspace }}
@@ -279,18 +282,21 @@ jobs:
           git clone git@bitbucket-git:thinkrfsoftware/libtrf.git
           cd libtrf
           git checkout ${{ github.event.inputs.LibtrfReleaseTag }}
-          cp bin/linux/x86_64/libtrf.so ../s1000_backend_old/bin/linux
-          cp bin/linux/x86_64/libtrf.so ../s1000_backend_old/include
-          cp source/inc/libtrf.h ../s1000_backend_old/include
+          cp bin/linux/x86_64/libtrf.so ../s1000_backend/bin/linux
+          cp bin/linux/x86_64/libtrf.so ../s1000_backend/include
+          cp source/inc/libtrf.h ../s1000_backend/include
           sudo cp bin/linux/x86_64/libtrf.so /usr/lib/
           cd ..
         working-directory: ${{ github.workspace }}
 
       - name: Build Backend Repository 
         run: |
-          cd s1000_backend_old
-          cmake -DCMAKE_PREFIX_PATH="${{ github.workspace }}/Qt/6.5.3/gcc_64/cmake;${{ github.workspace }}/portaudio-install/lib/cmake" -DPORTAUDIO_ROOT="${{ github.workspace }}/portaudio-install"
+          cd s1000_backend
+          mkdir build
+          cd build
+          cmake .. -DCMAKE_PREFIX_PATH="${{ github.workspace }}/Qt/6.5.3/gcc_64/cmake;${{ github.workspace }}/portaudio-install/lib/cmake" -DPORTAUDIO_ROOT="${{ github.workspace }}/portaudio-install" -DQt6CoreDir="${{ github.workspace }}/Qt/6.5.3/gcc_64  -DUSE_WEBSOCKET=ON  -DWEBSOCKET=ON
           cmake --build . --config Release
+          cd ..
           cd ..
         working-directory: ${{ github.workspace }}
 

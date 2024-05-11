@@ -73,8 +73,8 @@ jobs:
 
       - name: Retrieve Backend Repository
         run: |
-          git clone git@bitbucket-git:thinkrfsoftware/s1000_backend_old.git
-          cd s1000_backend_old
+          git clone git@bitbucket-git:thinkrfsoftware/s1000_backend.git
+          cd s1000_backend
           git checkout ${{ github.event.inputs.releaseTag }}
           cd ..
         
@@ -102,7 +102,7 @@ jobs:
     
       - name: Get WebsocketPP
         run: |
-          cd s1000_backend_old\include
+          cd s1000_backend\include
           git clone https://github.com/zaphoyd/websocketpp.git
           cd websocketpp
           mkdir build && cd build
@@ -114,7 +114,7 @@ jobs:
       - name: Call Package Builder
         run: |
           cd s1000-installer
-          python installer-builder.py ../s1000_backend_old $versionNumber $changelogComment $Stability
+          python installer-builder.py ../s1000_backend $versionNumber $changelogComment $Stability
           cd ..
 
 
@@ -159,8 +159,8 @@ jobs:
           
       - name: Retrieve Backend Repository
         run: |
-          git clone git@bitbucket-git:thinkrfsoftware/s1000_backend_old.git
-          cd s1000_backend_old
+          git clone git@bitbucket-git:thinkrfsoftware/s1000_backend.git
+          cd s1000_backend
           git checkout ${{ github.event.inputs.releaseTag }}
           sudo mkdir /usr/lib/s1000
           sudo cp include/libtrf.so /usr/lib/s1000/libtrf.so
@@ -174,7 +174,7 @@ jobs:
       - name: Call Builder
         run: |
           cd s1000-installer
-          sudo python3.10 installer-builder.py ../s1000_backend_old $versionNumber $changelogComment $Stability
+          sudo python3.10 installer-builder.py ../s1000_backend $versionNumber $changelogComment $Stability
           cd ..
 
       - name: Upload Built Installer
