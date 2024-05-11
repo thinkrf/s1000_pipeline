@@ -175,6 +175,17 @@
               cd ../../..
             working-directory: ${{ github.workspace }}
 
+          - name: Build backend     
+            run: |
+              cd s1000_backend 
+              mkdir build
+              cd build
+              cmake .. -DCMAKE_PREFIX_PATH="C:/Qt/6.5.3/msvc2019_64;C:/Program Files/portaudio/cmake/portaudio;C:/Program Files/websocketpp/cmake" -DBOOST_ROOT="C:/Program Files/boost/boost_1_80_0/boost_1_80_0" -DPORTAUDIO_ROOT="C:/Program Files/portaudio" -DQt6CoreDir="C:/Qt/6.5.3/msvc2019_64"  -DWEBSOCKETPP_DIR="C:/Program Files/websocketpp" -DUSE_WEBSOCKET=ON  -DWEBSOCKET=ON
+              cmake --build . --config Release
+              cd ..
+              cd ..
+              working-directory: ${{ github.workspace }}
+
           - name: Retrieve libtrf Repository
             run: |
               git clone git@bitbucket-git:thinkrfsoftware/libtrf.git
@@ -187,16 +198,7 @@
               cp source/inc/libtrf.h ../s1000_backend/include
             working-directory: ${{ github.workspace }}
 
-          - name: Build backend     
-            run: |
-              cd s1000_backend 
-              mkdir build
-              cd build
-              cmake .. -DCMAKE_PREFIX_PATH="C:/Qt/6.5.3/msvc2019_64;C:/Program Files/portaudio/cmake/portaudio;C:/Program Files/websocketpp/cmake" -DBOOST_ROOT="C:/Program Files/boost/boost_1_80_0/boost_1_80_0" -DPORTAUDIO_ROOT="C:/Program Files/portaudio" -DQt6CoreDir="C:/Qt/6.5.3/msvc2019_64"  -DWEBSOCKETPP_DIR="C:/Program Files/websocketpp" -DUSE_WEBSOCKET=ON  -DWEBSOCKET=ON
-              cmake --build . --config Release
-              cd ..
-              cd ..
-            working-directory: ${{ github.workspace }}
+ 
 
           - name: Download Inno Setup Compiler
             run: Invoke-WebRequest -Uri "http://www.jrsoftware.org/download.php/is.exe" -OutFile ".\is.exe"
@@ -296,7 +298,18 @@
               cd ..
             working-directory: ${{ github.workspace }}
 
-          - name: Retrieve libtrf Repository from S3
+          - name: Build Backend Repository 
+            run: |
+              cd s1000_backend
+              mkdir build
+              cd build
+              cmake .. -DCMAKE_PREFIX_PATH="${{ github.workspace }}/Qt/6.5.3/gcc_64/cmake;${{ github.workspace }}/portaudio-install/lib/cmake" -DPORTAUDIO_ROOT="${{ github.workspace }}/portaudio-install" -DQt6CoreDir="${{ github.workspace }}/Qt/6.5.3/gcc_64  -DUSE_WEBSOCKET=ON  -DWEBSOCKET=ON
+              cmake --build . --config Release
+              cd ..
+              cd ..
+            working-directory: ${{ github.workspace }}
+
+          - name: Retrieve libtrf Repository
             run: |
               git clone git@bitbucket-git:thinkrfsoftware/libtrf.git
               cd libtrf
@@ -308,16 +321,7 @@
               cd ..
             working-directory: ${{ github.workspace }}
 
-          - name: Build Backend Repository 
-            run: |
-              cd s1000_backend
-              mkdir build
-              cd build
-              cmake .. -DCMAKE_PREFIX_PATH="${{ github.workspace }}/Qt/6.5.3/gcc_64/cmake;${{ github.workspace }}/portaudio-install/lib/cmake" -DPORTAUDIO_ROOT="${{ github.workspace }}/portaudio-install" -DQt6CoreDir="${{ github.workspace }}/Qt/6.5.3/gcc_64  -DUSE_WEBSOCKET=ON  -DWEBSOCKET=ON
-              cmake --build . --config Release
-              cd ..
-              cd ..
-            working-directory: ${{ github.workspace }}
+
 
           - name: Retrieve Installer Repository & Update installer.sh then create deb
             run: |            
