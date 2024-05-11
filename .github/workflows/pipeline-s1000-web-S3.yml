@@ -194,7 +194,7 @@ jobs:
             cmake --build . --config Release
             cd ..
             cd ..
-          working-directory: ${{ github.workspace }}
+        working-directory: ${{ github.workspace }}
 
       - name: Retrieve libtrf Repository from S3
         run: |
