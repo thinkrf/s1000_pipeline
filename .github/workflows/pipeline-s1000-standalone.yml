@@ -12,7 +12,16 @@
     name: S1000 Standalone
     on:
       workflow_dispatch:
-        inputs:        
+        inputs:  
+          osType:
+            description: 'Operating System type to build (windows, ubuntu, both)'
+            required: true
+            default: 'both'   
+            type: choice
+            options:
+              - windows
+              - ubuntu
+              - both      
           BackendReleaseTag:
             description: 'The S1000 backend tag that you would like to create a release. Ex: 1.3.0'     
             required: true   
@@ -41,7 +50,8 @@
       windows_build:
         name: "Windows Build"
         runs-on: windows-latest
-    
+        if: ${{ github.event.inputs.osType == 'windows' || github.event.inputs.osType == 'both' }}
+
         permissions:
           contents: read
           packages: write
@@ -76,7 +86,7 @@
               target: desktop
             
           - name: List files in Qt
-            run: find ${{env.Qt6_Dir}}
+            run : find "${{ env.Qt6_Dir }}"
     
           - name: Determine Qt Installation Location
             run: |
@@ -233,6 +243,8 @@
       ubuntu_build:
         name: "Ubuntu Build"
         runs-on: ubuntu-latest
+        if: ${{ github.event.inputs.osType == 'ubuntu' || github.event.inputs.osType == 'both' }}
+
         permissions:
           contents: read
           packages: write
