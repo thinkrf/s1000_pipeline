@@ -73,7 +73,13 @@ jobs:
         with:
           version: ${{ env.QT_VERSION }}
           target: desktop
-          installDir: C:\Qt
+      
+      - name: List files in Qt
+        run: find ${{env.Qt6_Dir}}
+
+      - name: Determine Qt Installation Location
+        run: |
+          echo "Qt Installation Directory: ${{ env.Qt6_Dir }}"
 
 
       - name: Checkout code
@@ -171,7 +177,7 @@ jobs:
           cd s1000_backend 
           mkdir build
           cd build
-          cmake .. -DCMAKE_PREFIX_PATH="C:/Qt/6.5.3/msvc2019_64;C:/Program Files/portaudio/cmake/portaudio;C:/Program Files/websocketpp/cmake" -DBOOST_ROOT="C:/Program Files/boost/boost_1_80_0/boost_1_80_0" -DPORTAUDIO_ROOT="C:/Program Files/portaudio" -DQt6CoreDir="C:/Qt/6.5.3/msvc2019_64"  -DWEBSOCKETPP_DIR="C:/Program Files/websocketpp" -DUSE_WEBSOCKET=ON  -DWEBSOCKET=ON
+          cmake .. -DCMAKE_PREFIX_PATH="${{env.Qt6_Dir}};C:/Program Files/portaudio/cmake/portaudio;C:/Program Files/websocketpp/cmake" -DBOOST_ROOT="C:/Program Files/boost/boost_1_80_0/boost_1_80_0" -DPORTAUDIO_ROOT="C:/Program Files/portaudio" -DQt6CoreDir="${{ env.Qt6_Dir }}"  -DWEBSOCKETPP_DIR="C:/Program Files/websocketpp" -DUSE_WEBSOCKET=ON  -DWEBSOCKET=ON
           cmake --build . --config Release
           cd ..
           cd ..
@@ -252,6 +258,10 @@ jobs:
           version: ${{ env.QT_VERSION }}
           target: desktop
           installDir: /usr/local/Qt/
+
+      - name: Determine Qt Installation Location
+        run: |
+          echo "Qt Installation Directory: ${{ env.Qt6_Dir }}"
       
       - name: Install dependencies
         run: |
@@ -278,12 +288,16 @@ jobs:
         working-directory: ${{ github.workspace }}
 
 
-      - name: Build Backend Repository 
+      - name: Set up Qt version environment variable
         run: |
-          cd s1000_backend
+          echo "QT_VERSION=${{ env.QT_VERSION }}" >> $GITHUB_ENV
+      
+      - name: Build backend     
+        run: |
+          cd s1000_backend 
           mkdir build
           cd build
-          cmake .. -DCMAKE_PREFIX_PATH="${{ github.workspace }}/Qt/6.5.3/gcc_64/cmake;${{ github.workspace }}/portaudio-install/lib/cmake" -DPORTAUDIO_ROOT="${{ github.workspace }}/portaudio-install" -DQt6CoreDir="${{ github.workspace }}/Qt/6.5.3/gcc_64  -DUSE_WEBSOCKET=ON  -DWEBSOCKET=ON
+          cmake .. -DCMAKE_PREFIX_PATH="C:/Qt/${{ env.QT_VERSION }}/msvc2019_64;C:/Program Files/portaudio/cmake/portaudio;C:/Program Files/websocketpp/cmake" -DBOOST_ROOT="C:/Program Files/boost/boost_1_80_0/boost_1_80_0" -DPORTAUDIO_ROOT="C:/Program Files/portaudio" -DQt6CoreDir="C:/Qt/${{ env.QT_VERSION }}/msvc2019_64"  -DWEBSOCKETPP_DIR="C:/Program Files/websocketpp" -DUSE_WEBSOCKET=ON  -DWEBSOCKET=ON
           cmake --build . --config Release
           cd ..
           cd ..
