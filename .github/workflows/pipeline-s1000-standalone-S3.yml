@@ -89,7 +89,7 @@ jobs:
           target: desktop
       
       - name: List files in Qt
-        run : find "${{ env.Qt6_Dir }}"}
+        run : find "${{ env.Qt6_Dir }}"
 
       - name: Determine Qt Installation Location
         run: |
