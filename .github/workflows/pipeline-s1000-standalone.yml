@@ -71,12 +71,12 @@
           - name: Build and install PortAudio
             continue-on-error: true
             run: |
-              git clone https://github.com/PortAudio/portaudio.git
+              git clone https://github.com/PortAudio/portaudio
               cd portaudio
-              mkdir build 
-              cd build
-              cmake .. -DCMAKE_INSTALL_PREFIX="C:/Program Files/portaudio"
-              cmake --build . --target install --config Release
+              cmake . -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=/usr/local/ -DCMAKE_INSTALL_PREFIX=/usr/local/
+              ./configure --enable-shared
+              make
+              sudo make install
               cd ..\..\..\..
             
           - name: Install Qt
@@ -196,7 +196,7 @@
               cd s1000_backend 
               mkdir build
               cd build
-              cmake .. -DCMAKE_PREFIX_PATH="C:/Qt/6.5.3/msvc2019_64;C:/Program Files/portaudio/cmake/portaudio;C:/Program Files/websocketpp/cmake" -DBOOST_ROOT="C:/Program Files/boost/boost_1_80_0/boost_1_80_0" -DPORTAUDIO_ROOT="C:/Program Files/portaudio" -DQt6CoreDir="C:/Qt/6.5.3/msvc2019_64"  -DWEBSOCKETPP_DIR="C:/Program Files/websocketpp" -DUSE_WEBSOCKET=ON  -DWEBSOCKET=ON
+              cmake .. -DCMAKE_PREFIX_PATH="${{env.Qt6_Dir}};C:/Program Files/portaudio/lib/cmake/portaudio;C:/Program Files/websocketpp/cmake" -DBOOST_ROOT="C:/Program Files/boost/boost_1_80_0/boost_1_80_0" -DPORTAUDIO_ROOT="C:/Program Files/portaudio" -DQt6CoreDir="${{ env.Qt6_Dir }}"  -DWEBSOCKETPP_DIR="C:/Program Files/websocketpp" -DUSE_WEBSOCKET=ON  -DWEBSOCKET=ON
               cmake --build . --config Release
               cd ..
               cd ..
