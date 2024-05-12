@@ -80,7 +80,17 @@ jobs:
             cmake .. -DCMAKE_INSTALL_PREFIX="C:/Program Files/portaudio"              
             cmake --build . --target install --config Release
             cd ..\..\..\..
-        
+
+      - name: Build and install WebSocketPP
+        run: |
+            git clone https://github.com/zaphoyd/websocketpp.git
+            cd websocketpp
+            mkdir build 
+            cd build
+            cmake .. -DCMAKE_INSTALL_PREFIX="C:/Program Files/websocketpp"
+            cmake --build . --target install --config Release
+            cd ../../..
+
       - name: Install Qt
         uses: jurplel/install-qt-action@v3.3.0
         with:
@@ -186,31 +196,18 @@ jobs:
           cd s1000_frontend
           git checkout ${{ github.event.inputs.FrontendReleaseTag }}
           npm ci
-          npm run build-win64   
-            
-      - name: Retrieve Backend Repository
-        run: |
-          git clone git@bitbucket-git:thinkrfsoftware/s1000_backend.git
-          cd s1000_backend
-          git checkout ${{ github.event.inputs.BackendReleaseTag }}
-          cd ../
-          cd s1000_backend\include
-          git clone https://github.com/zaphoyd/websocketpp.git
-          cd websocketpp
-          mkdir build 
-          cd build
-          cmake .. -DCMAKE_INSTALL_PREFIX="C:/Program Files/websocketpp"
-          cmake --build . --target install --config Release
-          cd ../../..
+          npm run build-win64             
         working-directory: ${{ github.workspace }}
 
       - name: Set up Qt version environment variable
         run: |
           echo "QT_VERSION=${{ env.QT_VERSION }}" >> $GITHUB_ENV
 
-      - name: Build backend     
+      - name: Retreive and Build backend     
         run: |
-          cd s1000_backend 
+          git clone git@bitbucket-git:thinkrfsoftware/s1000_backend.git
+          cd s1000_backend
+          git checkout ${{ github.event.inputs.BackendReleaseTag }}
           mkdir build
           cd build
           cmake .. -DCMAKE_PREFIX_PATH="${{env.Qt6_Dir}};C:/Program Files/portaudio/lib/cmake/portaudio;C:/Program Files/websocketpp/cmake" -DBOOST_ROOT="C:/Program Files/boost/boost_1_80_0/boost_1_80_0" -DPORTAUDIO_ROOT="C:/Program Files/portaudio" -DQt6CoreDir="${{ env.Qt6_Dir }}"  -DWEBSOCKETPP_DIR="C:/Program Files/websocketpp" -DUSE_WEBSOCKET=ON  -DWEBSOCKET=ON
