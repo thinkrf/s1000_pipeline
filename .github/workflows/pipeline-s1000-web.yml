@@ -68,15 +68,14 @@ jobs:
 
 
       - name: Build and install PortAudio
-        continue-on-error: true
         run: |
-          git clone https://github.com/PortAudio/portaudio
-          cd portaudio
-          cmake . -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=/usr/local/ -DCMAKE_INSTALL_PREFIX=/usr/local/
-          ./configure --enable-shared
-          make
-          sudo make install
-          cd ..\..\..\....
+            git clone https://github.com/PortAudio/portaudio
+            cd portaudio
+            mkdir build
+            cd build
+            cmake .. -DCMAKE_INSTALL_PREFIX="C:/Program Files/portaudio"              
+            cmake --build . --target install --config Release
+            cd ..\..\..\..
         
       - name: Install Qt
         uses: jurplel/install-qt-action@v3.3.0

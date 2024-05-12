@@ -73,8 +73,10 @@
             run: |
               git clone https://github.com/PortAudio/portaudio
               cd portaudio
-              cmake . -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=/usr/local/ -DCMAKE_INSTALL_PREFIX=/usr/local/
-              ./configure --enable-shared
+              mkdir build
+              cd build
+              cmake .. -DCMAKE_INSTALL_PREFIX="C:/Program Files/portaudio"              
+               cmake --build . --target install --config Release
               make
               sudo make install
               cd ..\..\..\..
@@ -85,9 +87,6 @@
               version: ${{ env.QT_VERSION }}
               target: desktop
             
-          - name: List files in Qt
-            run : find "${{ env.Qt6_Dir }}"
-    
           - name: Determine Qt Installation Location
             run: |
               echo "Qt Installation Directory: ${{ env.Qt6_Dir }}"
