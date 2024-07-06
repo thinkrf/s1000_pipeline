@@ -196,7 +196,7 @@ jobs:
           cd s1000_frontend
           git checkout ${{ github.event.inputs.FrontendReleaseTag }}
           npm ci
-          npm run build-win64             
+          npm run build --win           
         working-directory: ${{ github.workspace }}
 
       - name: Set up Qt version environment variable
