@@ -254,7 +254,7 @@ jobs:
         working-directory: ${{ github.workspace }}
 
       - name: Upload Artifact To GitHub
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: Windows standalone installer
           path: installer/packaging/windows/standalone/Output/   # Specify the directory where the installer is created  
@@ -386,7 +386,7 @@ jobs:
           aws s3 cp ${{ github.workspace }}/s1000spectraware* s3://thinkrf-s1000/linux/
           
       - name: Upload  Artifact to GitHub
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: linux standalone installer
           path: ${{ github.workspace }}/s1000spectraware*   # Specify the directory where the installer is created  
