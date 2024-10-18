@@ -228,7 +228,7 @@
               & "C:\InnoSetup\ISCC.exe" .\inno-setup.iss
 
           - name: Upload Installer Artifact
-            uses: actions/upload-artifact@v2
+            uses: actions/upload-artifact@v4
             with:
               name: Windows standalone installer
               path: installer/packaging/windows/standalone/Output/   # Specify the directory where the installer is created  
@@ -351,7 +351,7 @@
               sudo ./installer.sh "${{ env.TAG_VERSION }}"
 
           - name: Upload Installer Artifact
-            uses: actions/upload-artifact@v2
+            uses: actions/upload-artifact@v4
             with:
               name: linux standalone installer
               path: ${{ github.workspace }}/s1000spectraware*   # Specify the directory where the installer is created  
